@@ -1,5 +1,5 @@
 import {
-    run
+    run,
 } from '@cycle/run';
 import {
     DOMSource,
@@ -11,20 +11,27 @@ import {
     h1,
     makeDOMDriver
 } from '@cycle/dom';
+import onionify, { MainFn, StateSource } from 'cycle-onionify';
 import { captureClicks, makeHashHistoryDriver } from '@cycle/history';
 import xs, { Stream, MemoryStream } from 'xstream';
 import { HistoryInput, Location } from '@cycle/history';
 
-console.log('hello typescript');
+console.log('hello typescript with onionify.');
+
+interface State {
+    content: string;
+}
 
 export interface Sources {
     dom: DOMSource;
-    history: MemoryStream<Location>;
+    onion: StateSource<State>;
 }
+
+type Reducer = (prev?: State) => State | undefined;
 
 export interface Sinks {
     dom: Stream<VNode>;
-    history: Stream<HistoryInput | string>;
+    onion: Stream<Reducer>;
 }
 
 function main(sources: Sources): Sinks {
@@ -47,11 +54,12 @@ function main(sources: Sources): Sinks {
 
     return {
         dom: vdom$,
-        history: xs.empty(),
+        onion: xs.empty(),
     };
 }
+const wrappedMain = onionify(main);
 
-run(main, {
+run(wrappedMain, {
     dom: makeDOMDriver('#main'),
     history: captureClicks(makeHashHistoryDriver()),
 })
