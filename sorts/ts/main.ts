@@ -10,6 +10,7 @@ import {
     makeDOMDriver
 } from '@cycle/dom';
 
+console.log('hello world');
 
 function main(sources) {
     const vdom$ = sources.DOM
@@ -35,5 +36,5 @@ function main(sources) {
 }
 
 run(main, {
-    DOM: makeDOMDriver('#main-container')
+    DOM: makeDOMDriver('#main')
 })

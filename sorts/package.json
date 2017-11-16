@@ -1,18 +1,32 @@
 {
-  "name": "sorts",
-  "version": "1.0.0",
-  "main": "index.js",
-  "author": "Bjorn Tipling",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "@cycle/dom": "^20.1.0",
-    "@cycle/history": "^6.9.0",
-    "@cycle/run": "^4.0.0",
-    "@types/core-js": "^0.9.43",
-    "@types/node": "^8.0.53",
-    "cycle-onionify": "^4.0.0",
-    "cyclic-router": "^5.1.3",
-    "ramda": "^0.25.0",
-    "xstream": "^11.0.0"
-  }
+    "name": "sorts",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "Bjorn Tipling",
+    "license": "Apache-2.0",
+    "scripts": {
+        "prod": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack",
+        "dev": "./node_modules/.bin/cross-env NODE_ENV=development ./node_modules/.bin/webpack-dev-server --content-base ./build --hot --inline --colors --port 8800 --open --history-api-fallback"
+    },
+    "dependencies": {
+        "@cycle/dom": "^20.1.0",
+        "@cycle/history": "^6.9.0",
+        "@cycle/isolate": "^3.2.0",
+        "@cycle/run": "^4.0.0",
+        "@types/core-js": "^0.9.43",
+        "@types/node": "^8.0.53",
+        "cross-env": "^5.1.1",
+        "cycle-onionify": "^4.0.0",
+        "cyclic-router": "^5.1.3",
+        "html-webpack-plugin": "^2.30.1",
+        "ramda": "^0.25.0",
+        "source-map-loader": "^0.2.3",
+        "ts-loader": "^3.1.1",
+        "typescript": "^2.6.1",
+        "uglifyjs-webpack-plugin": "^1.0.1",
+        "webpack": "^3.8.1",
+        "webpack-cleanup-plugin": "^0.5.1",
+        "webpack-dev-server": "^2.9.4",
+        "xstream": "^11.0.0"
+    }
 }
