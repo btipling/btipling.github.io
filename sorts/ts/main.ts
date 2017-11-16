@@ -2,6 +2,8 @@ import {
     run
 } from '@cycle/run';
 import {
+    DOMSource,
+    VNode,
     div,
     label,
     input,
@@ -9,13 +11,26 @@ import {
     h1,
     makeDOMDriver
 } from '@cycle/dom';
+import { captureClicks, makeHashHistoryDriver } from '@cycle/history';
+import xs, { Stream, MemoryStream } from 'xstream';
+import { HistoryInput, Location } from '@cycle/history';
 
-console.log('hello world');
+console.log('hello typescript');
 
-function main(sources) {
-    const vdom$ = sources.DOM
+export interface Sources {
+    dom: DOMSource;
+    history: MemoryStream<Location>;
+}
+
+export interface Sinks {
+    dom: Stream<VNode>;
+    history: Stream<HistoryInput | string>;
+}
+
+function main(sources: Sources): Sinks {
+    const vdom$ = sources.dom
         .select('.myinput').events('input')
-        .map(ev => ev.target.value)
+        .map((ev: Event) => (<HTMLTextAreaElement>ev.target).value)
         .startWith('')
         .map(name =>
             div([
@@ -31,10 +46,12 @@ function main(sources) {
         );
 
     return {
-        DOM: vdom$,
+        dom: vdom$,
+        history: xs.empty(),
     };
 }
 
 run(main, {
-    DOM: makeDOMDriver('#main')
+    dom: makeDOMDriver('#main'),
+    history: captureClicks(makeHashHistoryDriver()),
 })
