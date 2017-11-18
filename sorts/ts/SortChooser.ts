@@ -1,30 +1,19 @@
 import {
     div,
     h1,
-    hr,
-    input,
-    label,
 } from '@cycle/dom';
+import isolate from '@cycle/isolate';
 import xs from 'xstream';
+import BubbleSort from './BubbleSort';
 import { ISinks, ISources } from './typedefs';
 
-export default function main(sources: ISources): ISinks {
-    const vdom$ = sources.dom
-        .select('.myinput').events('input')
-        .map((ev: Event) => (ev.target as HTMLTextAreaElement).value)
-        .startWith('')
-        .map((name) =>
-            div([
-                label('Name:'),
-                input('.myinput', {
-                    attrs: {
-                        type: 'text',
-                    },
-                }),
-                hr(),
-                h1(`Hello ${name}`),
-            ]),
-    );
+export default function SortChooser(sources: ISources): ISinks {
+    const bubbleSortSinks = isolate(BubbleSort, 'bubbleSort')(sources);
+
+    const vdom$ = bubbleSortSinks.dom.map(bubbleSortDOM => div([
+        h1(`Hello World?!`),
+        bubbleSortDOM,
+    ]));
 
     return {
         dom: vdom$,
