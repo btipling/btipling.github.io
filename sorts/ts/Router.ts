@@ -1,18 +1,25 @@
 
 import { Location } from 'history';
+import { hasIn } from 'ramda';
 import { Component, ISinks, ISources } from './typedefs';
 
-export default function Router(routes: { [key: string]: Component; }): Component {
+interface IRoutesMap { [key: string]: Component; }
+interface IRouteSinksMap { [key: string]: ISinks; };
+
+export function runRouter(routes: IRoutesMap, sources: ISources, routeSinks: IRouteSinksMap) {
+    return (pathname: string): ISinks => {
+        if (!hasIn(pathname, routeSinks)) {
+            routeSinks[pathname] = routes[pathname](sources);
+        }
+        return routeSinks[pathname];
+    };
+}
+
+export default function Router(routes: IRoutesMap): Component {
     return (sources: ISources): ISinks => {
         const history$ = sources.history;
+        const runRoute = runRouter(routes, sources, {});
 
-        const routeSinks: { [key: string]: ISinks } = {};
-        const runRoute = (pathname: string): ISinks => {
-            if (!routeSinks.hasOwnProperty(pathname)) {
-                routeSinks[pathname] = routes[pathname](sources);
-            }
-            return routeSinks[pathname];
-        };
         return {
             dom: history$.map(
                 (location: Location) => runRoute(location.pathname).dom).flatten(),
