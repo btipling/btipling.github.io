@@ -4,7 +4,7 @@ import { hasIn } from 'ramda';
 import { Component, ISinks, ISources } from './typedefs';
 
 interface IRoutesMap { [key: string]: Component; }
-interface IRouteSinksMap { [key: string]: ISinks; };
+interface IRouteSinksMap { [key: string]: ISinks; }
 
 export function runRouter(routes: IRoutesMap, sources: ISources, routeSinks: IRouteSinksMap) {
     return (pathname: string): ISinks => {
