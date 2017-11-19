@@ -1,19 +1,22 @@
 import {
+    a,
     div,
     h1,
 } from '@cycle/dom';
-import isolate from '@cycle/isolate';
+import { Location } from 'history';
 import xs from 'xstream';
-import BubbleSort from './BubbleSort';
 import { ISinks, ISources } from './typedefs';
 
 export default function SortChooser(sources: ISources): ISinks {
-    const bubbleSortSinks = isolate(BubbleSort, 'bubbleSort')(sources);
+    const history$ = sources.history;
 
-    const vdom$ = bubbleSortSinks.dom.map(bubbleSortDOM => div([
-        h1(`Hello World?!`),
-        bubbleSortDOM,
-    ]));
+    const vdom$ = history$.map((path: Location) => {
+        console.log(path);
+        return div([
+            h1(`Hello World?! ${path.pathname}`),
+            a({ props: { href: './bubblesort' } }, 'bubble sort'),
+        ]);
+    });
 
     return {
         dom: vdom$,

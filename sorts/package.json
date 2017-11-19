@@ -15,6 +15,7 @@
         "@cycle/isolate": "^3.2.0",
         "@cycle/run": "^4.0.0",
         "@types/core-js": "^0.9.43",
+        "@types/history": "^4.6.2",
         "@types/node": "^8.0.53",
         "cross-env": "^5.1.1",
         "cycle-onionify": "^4.0.0",

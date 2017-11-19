@@ -1,10 +1,11 @@
 import { makeDOMDriver } from '@cycle/dom';
-import { captureClicks, makeHashHistoryDriver } from '@cycle/history';
+import { captureClicks, makeHistoryDriver } from '@cycle/history';
 import { run } from '@cycle/run';
 import onionify from 'cycle-onionify';
-import SortChooser from './SortChooser';
+import Router from './Router';
+import routes from './routes';
 
-run(onionify(SortChooser), {
+run(onionify(Router(routes)), {
     dom: makeDOMDriver('#main'),
-    history: captureClicks(makeHashHistoryDriver()),
+    history: captureClicks(makeHistoryDriver()),
 });
