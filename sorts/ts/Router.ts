@@ -6,20 +6,18 @@ export default function Router(routes: { [key: string]: Component; }): Component
     return (sources: ISources): ISinks => {
         const history$ = sources.history;
 
-        // This function exists to avoid calling a component function twice.
-        let routerResult: ISinks;
-        const runRoute = (pathname: string, previous: boolean): ISinks => {
-            if (previous && routerResult !== undefined) {
-                return routerResult;
+        const routeSinks: { [key: string]: ISinks } = {};
+        const runRoute = (pathname: string): ISinks => {
+            if (!routeSinks.hasOwnProperty(pathname)) {
+                routeSinks[pathname] = routes[pathname](sources);
             }
-            routerResult = routes[pathname](sources);
-            return routerResult;
+            return routeSinks[pathname];
         };
         return {
             dom: history$.map(
-                (location: Location) => runRoute(location.pathname, false).dom).flatten(),
+                (location: Location) => runRoute(location.pathname).dom).flatten(),
             onion: history$.map(
-                (location: Location) => runRoute(location.pathname, true).onion).flatten(),
+                (location: Location) => runRoute(location.pathname).onion).flatten(),
         };
     };
 }
