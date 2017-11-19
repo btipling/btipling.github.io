@@ -1,7 +1,7 @@
 import {
     a,
     div,
-    h1,
+    p,
 } from '@cycle/dom';
 import { Location } from 'history';
 import xs from 'xstream';
@@ -13,7 +13,7 @@ export default function SortChooser(sources: ISources): ISinks {
     const vdom$ = history$.map((path: Location) => {
         console.log(path);
         return div([
-            h1(`Hello World?! ${path.pathname}`),
+            p('Choose a sort.'),
             a({ props: { href: './bubblesort' } }, 'bubble sort'),
         ]);
     });
