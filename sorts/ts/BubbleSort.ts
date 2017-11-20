@@ -71,6 +71,7 @@ function view(listVNode$: Stream<VNode>): Stream<VNode> {
 }
 
 export default function BubbleSort(sources: ISources): ISinks {
+    // Defining the list of items to be sorted.
     const List = makeCollection({
         collectSinks: (instances: any) => ({
             dom: instances.pickCombine('dom')
@@ -81,12 +82,10 @@ export default function BubbleSort(sources: ISources): ISinks {
         itemKey: (_: any, index: number) => index.toString(),
         itemScope: (key: string) => key,
     });
+    const listSinks = isolate(List, 'list')(sources as any);
 
     const reducer$ = model();
-
-    const listSinks = isolate(List, 'list')(sources as any);
     const vdom$ = view(listSinks.dom);
-
     return {
         dom: vdom$,
         onion: reducer$,
