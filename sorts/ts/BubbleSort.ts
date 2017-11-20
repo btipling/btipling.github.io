@@ -2,26 +2,19 @@ import {
     a,
     div,
     h2,
-    span,
     VNode,
 } from '@cycle/dom';
 import isolate from '@cycle/isolate';
 import { makeCollection } from 'cycle-onionify';
 import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
-import { ISinks, ISources } from './typedefs';
+import BubbleSortItem from './BubbleSortItem';
+import { ISinks, ISortData, ISources } from './typedefs';
 
 export interface IState {
     content: string;
 }
 export type Reducer = (prev?: IState) => IState | undefined;
-
-export interface ISortData {
-    value: number;
-    index: number;
-    compareAIndex: number;
-    compareBIndex: number;
-}
 
 export function makeSortData(arrayData: number[], compareAIndex: number, compareBIndex: number): ISortData[] {
     return arrayData.map((value, index) => ({ index, value, compareAIndex, compareBIndex }));
@@ -48,41 +41,7 @@ function genBubbleSort(): Iterator<ISortData[]> {
     return bubbleSort(times(() => Math.floor(Math.random() * 100), 20));
 }
 
-function Item(sources: ISources): ISinks {
-    console.log('item being made?');
-    const state$ = sources.onion.state$;
-
-    const vdom$ = state$.map(state => {
-        const sortData = state as any as ISortData;
-        let open = '';
-        let close = '';
-        if (sortData.compareAIndex === sortData.index) {
-            open = '[';
-            close = ']';
-        } else if (sortData.compareBIndex === sortData.index) {
-            open = '(';
-            close = ')';
-        }
-
-        return span('.item', [
-            span('.content', `${open}${sortData.value}${close} `),
-        ]);
-    });
-    return {
-        dom: vdom$,
-        onion: xs.empty(),
-    };
-}
-
-function view(listVNode$: Stream<VNode>): Stream<VNode> {
-    return listVNode$.map(node => div([
-        a({ props: { href: './' } }, 'back'),
-        h2('BubbleSort!'),
-        node,
-    ]));
-}
-
-export default function BubbleSort(sources: ISources): ISinks {
+function model(): Stream<Reducer> {
     let sorter: Iterator<ISortData[]> = genBubbleSort();
     const initialReducer$ = xs.of(() => {
         const value = sorter.next().value;
@@ -99,20 +58,33 @@ export default function BubbleSort(sources: ISources): ISinks {
                 list: value.value,
             };
         });
+
+    return xs.merge(initialReducer$, addOneReducer$) as any as Stream<Reducer>;
+}
+
+function view(listVNode$: Stream<VNode>): Stream<VNode> {
+    return listVNode$.map(node => div([
+        a({ props: { href: './' } }, 'back'),
+        h2('BubbleSort!'),
+        node,
+    ]));
+}
+
+export default function BubbleSort(sources: ISources): ISinks {
     const List = makeCollection({
         collectSinks: (instances: any) => ({
             dom: instances.pickCombine('dom')
                 .map((itemVNodes: VNode[]) => div(itemVNodes)),
             onion: instances.pickMerge('onion'),
         }),
-        item: Item,
+        item: BubbleSortItem,
         itemKey: (_: any, index: number) => index.toString(),
         itemScope: (key: string) => key,
     });
 
-    const listSinks = isolate(List, 'list')(sources as any);
+    const reducer$ = model();
 
-    const reducer$ = xs.merge(initialReducer$, addOneReducer$) as any as Stream<Reducer>;
+    const listSinks = isolate(List, 'list')(sources as any);
     const vdom$ = view(listSinks.dom);
 
     return {

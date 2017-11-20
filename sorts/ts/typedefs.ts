@@ -8,6 +8,13 @@ interface IState {
     content: string;
 }
 
+export interface ISortData {
+    value: number;
+    index: number;
+    compareAIndex: number;
+    compareBIndex: number;
+}
+
 export interface ISources {
     dom: DOMSource;
     history: Stream<Location>;
