@@ -46,7 +46,6 @@ export default function BubbleSort(sources: ISources): ISinks {
     let sorter: Iterator<ISortData> = genBubbleSort();
     const initialReducer$ = xs.of(() => sorter.next().value);
     const addOneReducer$ = xs.periodic(1000)
-        // .mapTo(prev => [1].concat(prev));
         .mapTo(() => {
             let value = sorter.next();
             if (value.done) {
