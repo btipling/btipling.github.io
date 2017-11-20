@@ -3,6 +3,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanupPlugin = require('webpack-cleanup-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const NODE_ENV = process.env.NODE_ENV;
 const isProd = NODE_ENV === 'production';
@@ -11,6 +12,11 @@ const tsSrc = path.join(root, 'ts');
 const dist = path.join(root, 'build');
 const app = path.join(tsSrc, 'main.ts');
 const publicPath = '/';
+
+const extractSass = new ExtractTextPlugin({
+    filename: "[name].[contenthash].css",
+    disable: !isProd,
+});
 
 const webpackConfig = {
     entry: {
@@ -30,7 +36,18 @@ const webpackConfig = {
         extensions: ['.ts', '.js', '.json'],
     },
     module: {
-        rules: [],
+        rules: [{
+            test: /\.sass$/,
+            use: extractSass.extract({
+                use: [{
+                    loader: "css-loader"
+                }, {
+                    loader: "sass-loader"
+                }],
+                // use style-loader in development
+                fallback: "style-loader"
+            })
+        }],
     }
 };
 
@@ -44,6 +61,7 @@ webpackConfig.plugins = [
         filename: 'index.html',
         inject: 'body',
     }),
+    extractSass,
 ];
 
 if (isProd) {
