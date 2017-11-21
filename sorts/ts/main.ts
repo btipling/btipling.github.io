@@ -8,6 +8,6 @@ import routes from './routes';
 import '../sass/main.sass';
 
 run(onionify(Router(routes)), {
-    dom: makeDOMDriver('#main'),
+    dom: makeDOMDriver('#app'),
     history: captureClicks(makeHistoryDriver()),
 });

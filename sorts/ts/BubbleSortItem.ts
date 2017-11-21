@@ -1,4 +1,5 @@
 import {
+    div,
     span,
 } from '@cycle/dom';
 import xs from 'xstream';
@@ -9,19 +10,19 @@ export default function Item(sources: ISources): ISinks {
 
     const vdom$ = state$.map(state => {
         const sortData = state as any as ISortData;
-        let open = '';
-        let close = '';
-        if (sortData.compareAIndex === sortData.index) {
-            open = '[';
-            close = ']';
-        } else if (sortData.compareBIndex === sortData.index) {
-            open = '(';
-            close = ')';
-        }
 
-        return span('.item', [
-            span('.content', `${open}${sortData.value}${close} `),
-        ]);
+        return div({
+            class: {
+                'BubbleSort-compareA': sortData.compareAIndex === sortData.index,
+                'BubbleSort-compareB': sortData.compareBIndex === sortData.index,
+                'BubbleSort-item': true,
+            },
+            style: {
+                height: `${sortData.value}%`,
+            },
+        }, [
+                span('.content', ' '),
+            ]);
     });
     return {
         dom: vdom$,

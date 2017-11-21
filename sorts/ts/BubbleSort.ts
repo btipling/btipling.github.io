@@ -10,6 +10,8 @@ import xs, { Stream } from 'xstream';
 import BubbleSortItem from './BubbleSortItem';
 import { ISinks, ISortData, ISources } from './typedefs';
 
+import '../sass/bubblesort.sass';
+
 export interface IState {
     content: string;
 }
@@ -37,7 +39,7 @@ export function* bubbleSort(unsortedArray: number[]): Iterator<ISortData[]> {
 }
 
 function genBubbleSort(): Iterator<ISortData[]> {
-    return bubbleSort(times(() => Math.floor(Math.random() * 100), 20));
+    return bubbleSort(times(() => Math.floor((Math.random() * 99) + 1), 20));
 }
 
 function model(): Stream<Reducer> {
@@ -46,7 +48,7 @@ function model(): Stream<Reducer> {
         const value = sorter.next().value;
         return { list: value };
     });
-    const addOneReducer$ = xs.periodic(1000)
+    const addOneReducer$ = xs.periodic(500)
         .mapTo(() => {
             let value = sorter.next();
             if (value.done) {
@@ -62,9 +64,9 @@ function model(): Stream<Reducer> {
 }
 
 function view(listVNode$: Stream<VNode>): Stream<VNode> {
-    return listVNode$.map(node => div([
-        node,
-        h2('The Bubble Sort'),
+    return listVNode$.map(node => div('.BubbleSort', [
+        div('.BubbleSort-demo', node),
+        div('.BubbleSort-graph', h2('The Bubble Sort')),
     ]));
 }
 
@@ -73,7 +75,7 @@ export default function BubbleSort(sources: ISources): ISinks {
     const List = makeCollection({
         collectSinks: (instances: any) => ({
             dom: instances.pickCombine('dom')
-                .map((itemVNodes: VNode[]) => div(itemVNodes)),
+                .map((itemVNodes: VNode[]) => div('.BubbleSort-listContainer', itemVNodes)),
             onion: instances.pickMerge('onion'),
         }),
         item: BubbleSortItem,
