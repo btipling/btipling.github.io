@@ -1,5 +1,4 @@
 import {
-    a,
     div,
     h2,
     VNode,
@@ -64,9 +63,8 @@ function model(): Stream<Reducer> {
 
 function view(listVNode$: Stream<VNode>): Stream<VNode> {
     return listVNode$.map(node => div([
-        a({ props: { href: './' } }, 'back'),
-        h2('BubbleSort!'),
         node,
+        h2('The Bubble Sort'),
     ]));
 }
 
