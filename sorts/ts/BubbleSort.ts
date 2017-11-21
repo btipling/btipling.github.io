@@ -87,11 +87,6 @@ function view(listVNode$: Stream<[VNode, VNode]>): Stream<VNode> {
 export default function BubbleSort(sources: ISources): ISinks {
     // Defining the list of items to be sorted.
     const state$ = sources.onion.state$;
-    state$.subscribe({
-        complete: () => { console.log('complete'); },
-        error: (_: void) => { console.log('error'); },
-        next: x => console.log('next', x),
-    });
     const List = makeCollection({
         collectSinks: (instances: any) => ({
             dom: instances.pickCombine('dom')
