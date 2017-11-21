@@ -21,7 +21,7 @@ export interface ISources {
     onion: StateSource<IState>;
 }
 
-type Reducer = (prev?: IState) => IState | undefined;
+export type Reducer = (prev?: IState) => IState | undefined;
 
 export interface ISinks {
     dom: Stream<VNode>;
