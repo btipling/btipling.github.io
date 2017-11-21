@@ -74,6 +74,7 @@ function model(state$: Stream<any>): Stream<Reducer> {
 
     return xs.merge(initialReducer$, addOneReducer$) as any as Stream<Reducer>;
 }
+
 function view(listVNode$: Stream<[VNode, VNode]>): Stream<VNode> {
     return listVNode$.map(([controls, listItems]) => div('.BubbleSort', [
         div('.BubbleSort-demo', [
