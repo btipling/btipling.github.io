@@ -10,7 +10,6 @@ export default function Item(sources: ISources): ISinks {
 
     const vdom$ = state$.map(state => {
         const sortData = state as any as ISortDataItem;
-        console.log(sortData.compare, 'compare?');
         return div({
             class: {
                 'BubbleSort-compareA': sortData.compareAIndex === sortData.index || (sortData.highlighted === sortData.value && sortData.compareBIndex === sortData.index),
