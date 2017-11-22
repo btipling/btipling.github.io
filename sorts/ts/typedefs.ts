@@ -8,11 +8,19 @@ interface IState {
     content: string;
 }
 
-export interface ISortData {
+export interface ISortDataItem {
     value: number;
     index: number;
+    compare: number;
     compareAIndex: number;
     compareBIndex: number;
+    highlighted: number;
+}
+
+export interface IBubbleState {
+    list: ISortDataItem[];
+    compare: number;
+    speedChooser: number;
 }
 
 export interface ISources {

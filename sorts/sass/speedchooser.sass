@@ -1,5 +1,35 @@
-.SpeedChooser
-    outline: 1px solid green
+.SpeedChooser-label
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-size: 14px
+    text-transform: lowercase
+    color: #97E4FF
+    visibility: hidden
+.SpeedChooser:hover .SpeedChooser-label
+    visibility: visible
 
+.SpeedChooser-choice
+    height: 40px
+    width: 40px
+    border-radius: 50%
+    border: none
+    background: #1947A6
+    margin: 10px 0
+    cursor: pointer
+    color: #8CA6DC
+    border: 2px solid #1947A6
+    outline: none
+    font-weight: bold
+    visibility: hidden
+.SpeedChooser:hover .SpeedChooser-choice
+    background: #2468F2
+    visibility: visible
+    color: #DCE7FF
+    border-color: #2468F2
+
+.SpeedChooser:hover .SpeedChooser-choice:hover
+    border-color: #DCE7FF
+    color: #DCE7FF
 .SpeedChooser-selected
-    background: yellow
+    visibility: visible
+.SpeedChooser:hover .SpeedChooser-selected
+    border-color: #51D2FF

@@ -1,6 +1,7 @@
 import {
     button,
     div,
+    label,
     DOMSource,
     VNode,
 } from '@cycle/dom';
@@ -12,25 +13,22 @@ import '../sass/speedchooser.sass';
 export const SPEED_1X = 1;
 export const SPEED_2X = 2;
 export const SPEED_3X = 3;
+export const SPEED_4X = 4;
 
 export interface ISpeedOption { speed: number; }
 
 function intent(domSource: DOMSource): Stream<ISpeedOption> {
-    const speed1X$ = domSource.select('.SpeedChooser-1x')
-        .events('click')
-        .map(() => ({ speed: SPEED_1X }));
-    const speed2X$ = domSource.select('.SpeedChooser-2x')
-        .events('click')
-        .map(() => ({ speed: SPEED_2X }));
-    const speed3X$ = domSource.select('.SpeedChooser-3x')
-        .events('click')
-        .map(() => ({ speed: SPEED_3X }));
-    return xs.merge(speed1X$, speed2X$, speed3X$);
+    const f = speed => domSource.select(`.SpeedChooser-${speed}x`).events('click').map(() => ({ speed }));
+    return xs.merge(
+        f(SPEED_1X),
+        f(SPEED_2X),
+        f(SPEED_3X),
+        f(SPEED_4X));
 }
 
 function model(actions: Stream<ISpeedOption>): Stream<Reducer> {
     const initReducer$ = xs.of(function initReducer(_: ISpeedOption): ISpeedOption {
-        return { speed: SPEED_2X };
+        return { speed: SPEED_4X };
     });
 
     const addReducer$ = actions
@@ -41,11 +39,16 @@ function model(actions: Stream<ISpeedOption>): Stream<Reducer> {
 }
 
 function view(speed$: Stream<ISpeedOption>): Stream<VNode> {
-    return speed$.map(({ speed }) => div('.SpeedChooser', [
-        div(button(`.SpeedChooser-1x ${speed === SPEED_1X ? '.SpeedChooser-selected' : ''}`, '1X')),
-        div(button(`.SpeedChooser-2x ${speed === SPEED_2X ? '.SpeedChooser-selected' : ''}`, '2X')),
-        div(button(`.SpeedChooser-3x ${speed === SPEED_3X ? '.SpeedChooser-selected' : ''}`, '3X')),
-    ]));
+    return speed$.map(({ speed }) => {
+        const cn = 'SpeedChooser';
+        const f = s => div(button(`.${cn}-choice ${cn}-${s}x ${s === speed ? `.${cn}-selected` : ''}`, `${s}x`));
+        return div('.SpeedChooser', [
+            label('.SpeedChooser-label', 'Speed'),
+            f(SPEED_1X),
+            f(SPEED_2X),
+            f(SPEED_3X),
+            f(SPEED_4X)]);
+    });
 }
 
 export default function SpeedChooser(sources: ISources): ISinks {
