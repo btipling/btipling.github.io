@@ -8,6 +8,7 @@ import { makeCollection } from 'cycle-onionify';
 import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
 import BubbleSortItem from './BubbleSortItem';
+import PerformanceGraph from './PerformanceGraph';
 import SpeedChooser, { SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X } from './SpeedChooser';
 import { IBubbleState, ISinks, ISources } from './typedefs';
 
@@ -82,8 +83,8 @@ function model(state$: Stream<any>): Stream<Reducer> {
     return xs.merge(initialReducer$, addOneReducer$) as any as Stream<Reducer>;
 }
 
-function view(listVNode$: Stream<[IState, VNode, VNode]>): Stream<VNode> {
-    return listVNode$.map(([state, controls, listItems]) => {
+function view(listVNode$: Stream<[IState, VNode, VNode, VNode]>): Stream<VNode> {
+    return listVNode$.map(([state, controls, listItems, graph]) => {
         const { compare } = state as any as IBubbleState;
         return div('.BubbleSort', [
             div('.BubbleSort-demo', [
@@ -98,7 +99,8 @@ function view(listVNode$: Stream<[IState, VNode, VNode]>): Stream<VNode> {
                     },
                 }),
             ]),
-            div('.BubbleSort-graph', h2('The Bubble Sort')),
+            h2('The Bubble Sort'),
+            div('.BubbleSort-graph', graph),
         ]);
     });
 }
@@ -106,11 +108,7 @@ function view(listVNode$: Stream<[IState, VNode, VNode]>): Stream<VNode> {
 export default function BubbleSort(sources: ISources): ISinks {
     // Defining the list of items to be sorted.
     const state$ = sources.onion.state$;
-    // state$.subscribe({
-    //     complete: console.log,
-    //     error: console.log,
-    //     next: console.log,
-    // });
+    // state$.subscribe({ complete: console.log, error: console.log, next: console.log });
     const List = makeCollection({
         collectSinks: (instances: any) => ({
             dom: instances.pickCombine('dom')
@@ -123,11 +121,13 @@ export default function BubbleSort(sources: ISources): ISinks {
     });
     const listSinks = isolate(List, 'list')(sources as any);
     const speedSinks = isolate(SpeedChooser, 'speedChooser')(sources as any);
+    const graphSinks = isolate(PerformanceGraph, 'graph')(sources as any);
 
     const speedReducer$ = speedSinks.onion as any as Stream<Reducer>;
+    const graphReducer$ = graphSinks.onion as any as Stream<Reducer>;
 
-    const reducer$ = xs.merge(model(state$), speedReducer$);
-    const vdom$ = view(xs.combine(state$, speedSinks.dom, listSinks.dom));
+    const reducer$ = xs.merge(model(state$), speedReducer$, graphReducer$);
+    const vdom$ = view(xs.combine(state$, speedSinks.dom, listSinks.dom, graphSinks.dom));
     return {
         dom: vdom$,
         onion: reducer$,
