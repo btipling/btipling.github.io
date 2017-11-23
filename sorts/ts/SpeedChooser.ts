@@ -14,6 +14,7 @@ export const SPEED_1X = 1;
 export const SPEED_2X = 2;
 export const SPEED_3X = 3;
 export const SPEED_4X = 4;
+export const SPEED_5X = 5;
 
 export interface ISpeedOption { speed: number; }
 
@@ -23,7 +24,8 @@ function intent(domSource: DOMSource): Stream<ISpeedOption> {
         f(SPEED_1X),
         f(SPEED_2X),
         f(SPEED_3X),
-        f(SPEED_4X));
+        f(SPEED_4X),
+        f(SPEED_5X));
 }
 
 function model(actions: Stream<ISpeedOption>): Stream<Reducer> {
@@ -47,7 +49,8 @@ function view(speed$: Stream<ISpeedOption>): Stream<VNode> {
             f(SPEED_1X),
             f(SPEED_2X),
             f(SPEED_3X),
-            f(SPEED_4X)]);
+            f(SPEED_4X),
+            f(SPEED_5X)]);
     });
 }
 
