@@ -36,10 +36,10 @@ export function model(actions: Stream<IGraphState>, state: Stream<IGraphState>) 
     return xs.merge(initReducer$, addReducer$) as any as Stream<Reducer>;
 }
 
-export function segment(currentScale: { scale: number }): (scale: number) => VNode {
+export function segment(): (scale: number) => VNode {
     const cn = 'PerformanceGraph-section';
     return (scale: number) => {
-        return div(`.${cn} ${cn}${scale} ${scale === currentScale.scale ? `${cn}Active` : ''}`, [
+        return div(`.${cn} ${cn}${scale}`, [
         ]);
     };
 }
@@ -51,9 +51,8 @@ export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
         .map((e: Element) => ({ width: e.scrollWidth, height: e.scrollHeight }))
         .startWith({ width: 0, height: 0 }) as Stream<{ width: number, height: number }>;
 
-    return xs.combine(state$, graph$).map(([currentScale, { width, height }]) => {
-        // console.log(width, height);
-        const f = segment(currentScale);
+    return xs.combine(state$, graph$).map(([_, { width, height }]) => {
+        const f = segment();
         return div('.PerformanceGraph', [
             div('.PerformanceGraph-graphBG', [
                 h('svg', {
@@ -62,7 +61,14 @@ export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
                         width,
                     },
                 }, [
-                        h('circle', { attrs: { 'cx': 50, 'cy': 50, 'r': 40, 'stroke': 'green', 'stroke-width': 4, 'fill': 'yellow' } }),
+                        h('path', {
+                            attrs: {
+                                'd': 'M 0 10 L 400 10 C 40 10, 65 10, 95 80 S 150 150, 180 80',
+                                'fill': 'transparent',
+                                'stroke': 'lightblue',
+                                'stroke-width': 3,
+                            }
+                        }),
                     ]),
             ]),
             f(SCALE_1),

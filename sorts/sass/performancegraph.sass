@@ -3,14 +3,13 @@
     position: relative
     grid-template-columns: repeat(4, 1fr)
     grid-template-rows: 1fr
-    background: darkblue
     color: #FFF
 
 .PerformanceGraph-section
     display: grid
     grid-template-columns: 1fr
     grid-template-rows: 1fr
-    outline: 1px solid lightblue
+    outline: 1px solid transparent
     cursor: pointer
     z-index: 1
 
@@ -18,10 +17,7 @@
     display: grid
     grid-template-columns: 1fr
     grid-template-rows: 1fr
-    background: blue
-
-.PerformanceGraph-sectionActive
-    background: blue
+    outline-color: lightblue
 
 .PerformanceGraph-graphBG
     position: absolute
