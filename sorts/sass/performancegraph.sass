@@ -1,9 +1,23 @@
 .PerformanceGraph
     display: grid
+    grid-template-columns: 1fr 8fr
+    grid-template-rows: 10fr 1fr
+
+.PerformanceGraphYLabel
+    display: grid
+    grid-template-columns: 1fr
+    grid-template-rows: 1fr
+    align-self: center
+    visibility: hidden
+
+.PerformanceGraph:hover .PerformanceGraphYLabel
+    visibility: visible
+
+.PerformanceGraph-sections
+    display: grid
     position: relative
     grid-template-columns: repeat(4, 1fr)
     grid-template-rows: 1fr
-    color: #FFF
 
 .PerformanceGraph-section
     display: grid
