@@ -3,6 +3,7 @@ import {
     DOMSource,
     h,
 } from '@cycle/dom';
+import { map, max, min, range, reduce } from 'ramda';
 import { VNode } from 'snabbdom/vnode';
 import xs, { Stream } from 'xstream';
 import '../sass/performancegraph.sass';
@@ -45,73 +46,69 @@ export function segment(): (scale: number) => VNode {
     };
 }
 
-export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
+function points(positions: Array<[number, number]>, distancePerSize: number): VNode[] {
+    const r = min(50, max(1, distancePerSize * 1.5));
+    return map(([cx, cy]) => point(cx, cy, r), positions);
+}
 
-    const graph$ = domSource$.select('.PerformanceGraph')
+function point(cx: number, cy: number, r: number): VNode {
+    return h('circle', {
+        attrs: {
+            cx,
+            cy,
+            'fill': '#2468F2',
+            r,
+            'stroke': 'transparent',
+            'stroke-width': 0,
+        },
+    });
+}
+
+function path(positions: Array<[number, number]>, distancePerSize: number): VNode {
+    const strokeWidth = min(distancePerSize / 2, 3);
+    const d = reduce((acc, [x, y]: [number, number]) => `${acc} ${acc.length ? 'L' : 'M'}  ${x} ${y}`, '', positions);
+    return h('path', {
+        attrs: {
+            d,
+            'fill': 'transparent',
+            'stroke': '#83C7DE',
+            'stroke-width': strokeWidth,
+        },
+    })
+}
+
+function numOpsToPos(numOps: number, n: number, distancePerSize: number, height: number): [number, number] {
+    const heightDistanceUnits = height / 100;
+    const heightInUnits = heightDistanceUnits * 100;
+    const r = [distancePerSize * scaleToN(n + 1), heightInUnits - numOps * heightDistanceUnits];
+    return r as [number, number];
+}
+
+export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
+    // Get dimensions from previously rendered graph.
+    const graphDimensions$ = domSource$.select('.PerformanceGraph')
         .element()
         .map((e: Element) => ({ width: e.scrollWidth, height: e.scrollHeight }))
         .startWith({ width: 0, height: 0 }) as Stream<{ width: number, height: number }>;
-    return xs.combine(state$, graph$)
+
+    // Combine state and dimensions to create graph.
+    return xs.combine(state$, graphDimensions$)
         .filter(([state, { width }]) => state.numOps !== undefined || width === 0)
         .map(([state, { width, height }]) => {
-            // console.log('view');
-            const distancePerSize = width / 210;
-            const heightDistanceUnits = height / 100;
-            let r = distancePerSize;
-            if (r < 1) {
-                r = 1;
-            } else if (r > 50) {
-                r = 50;
-            }
-            let strokeWidth = distancePerSize / 2;
-            if (strokeWidth > 3) {
-                strokeWidth = 3;
-            }
-            let circles: VNode[] = [];
-            let d = '';
-            if (state.numOps) {
-                const max = heightDistanceUnits * 100;
-                const positions = [
-                    [distancePerSize * scaleToN(SCALE_1), `${max - state.numOps[0] * heightDistanceUnits}`],
-                    [distancePerSize * scaleToN(SCALE_2), `${max - state.numOps[1] * heightDistanceUnits}`],
-                    [distancePerSize * scaleToN(SCALE_3), `${max - state.numOps[2] * heightDistanceUnits}`],
-                    [distancePerSize * scaleToN(SCALE_4), `${max - state.numOps[3] * heightDistanceUnits}`],
-                ];
-                circles = positions.map(([cx, cy]) => h('circle', {
-                    attrs: {
-                        cx,
-                        cy,
-                        'fill': '#2468F2',
-                        r,
-                        'stroke': 'transparent',
-                        'stroke-width': 0,
-                    },
-                }));
-                d = positions.reduce((acc, [x, y]: [number, number]) => `${acc} ${acc.length ? 'L' : 'M'}  ${x} ${y}`, '');
-            }
-            const f = segment();
+            const distancePerSize = width / (scaleToN(SCALE_4) + 10);
+            // numOps is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
+            const positions = state.numOps ? state.numOps.map((numOps, n) => numOpsToPos(numOps, n, distancePerSize, height)) : [];
+
+            const graphPath = path(positions, distancePerSize);
+            const graphPoints = points(positions, distancePerSize);
+            const graphContent = [graphPath].concat(graphPoints);
+            const segments = map(segment, range(SCALE_1, SCALE_4));
+
             return div('.PerformanceGraph', [
                 div('.PerformanceGraph-graphBG', [
-                    h('svg', {
-                        attrs: {
-                            height,
-                            width,
-                        },
-                    }, [
-                        h('path', {
-                            attrs: {
-                                d,
-                                'fill': 'transparent',
-                                'stroke': '#83C7DE',
-                                'stroke-width': strokeWidth,
-                            },
-                        }),
-                    ].concat(circles)),
+                    h('svg', { attrs: { height, width } }, graphContent),
                 ]),
-                f(SCALE_1),
-                f(SCALE_2),
-                f(SCALE_3),
-                f(SCALE_4)]);
+            ].concat(segments));
         });
 }
 

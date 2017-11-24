@@ -164,7 +164,7 @@ function view(listVNode$: Stream<[IState, VNode, VNode[], VNode]>): Stream<VNode
                     },
                 }),
             ]),
-            h2('The Bubble Sort'),
+            h2('Bubble Sort'),
             div('.BubbleSort-graph', graphNode),
         ]);
     });
