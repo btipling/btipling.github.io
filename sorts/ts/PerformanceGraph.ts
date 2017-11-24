@@ -4,9 +4,10 @@ import {
     h,
     label,
 } from '@cycle/dom';
-import { map, max, min, range, reduce } from 'ramda';
+import { map, max, min, range } from 'ramda';
 import { VNode } from 'snabbdom/vnode';
 import xs, { Stream } from 'xstream';
+import { getSplines } from '../external/bezier-spline';
 import '../sass/performancegraph.sass';
 import { scaleToN } from './sortOps';
 import { IGraphState, ISinks, ISources, Reducer } from './typedefs';
@@ -65,9 +66,12 @@ function point(cx: number, cy: number, r: number): VNode {
     });
 }
 
-function path(positions: Array<[number, number]>, width: number): VNode {
+function paths(positions: Array<[number, number]>, width: number): VNode[] {
     const strokeWidth = min(width / 100, 3);
-    const d = reduce((acc, [x, y]: [number, number]) => `${acc} ${acc.length ? 'L' : 'M'}  ${x} ${y}`, '', positions);
+    return getSplines(positions).map(d => path(d, strokeWidth));
+}
+
+function path(d: string, strokeWidth: number): VNode {
     return h('path', {
         attrs: {
             d,
@@ -105,9 +109,9 @@ export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
             const distancePerSize = width / (scaleToN(SCALE_4) + 10);
             // numOps is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
             const positions = state.numOps ? state.numOps.map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];
-            const graphPath = path(positions, width);
+            const graphPaths = paths(positions, width);
             const graphPoints = points(positions, width);
-            const graphContent = [graphPath].concat(graphPoints);
+            const graphContent = graphPaths.concat(graphPoints);
             const segments = map(segment(), range(SCALE_1, SCALE_4 + 1));
 
             return div('.PerformanceGraph', [
