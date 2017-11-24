@@ -9,6 +9,7 @@ import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
 import BubbleSortItem from './BubbleSortItem';
 import PerformanceGraph, { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
+import { scaleToN } from './sortOps';
 import SpeedChooser, { SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
 import { IBubbleState, ISinks, ISorter, ISources } from './typedefs';
 
@@ -19,64 +20,84 @@ export interface IState {
 }
 export type Reducer = (prev?: IState) => IState | undefined;
 
-export function makeSortData(arrayData: number[], compareAIndex: number, compareBIndex: number, compare: number, highlighted: number): IBubbleState {
+export function makeSortData(
+    arrayData: number[],
+    compareAIndex: number,
+    compareBIndex: number,
+    compare: number,
+    highlighted: number,
+    numOps: number[]): IBubbleState {
     return {
         compare,
         graph: { scale: SCALE_1 },
         list: arrayData.map((value, index) => ({ compare, highlighted, index, value, compareAIndex, compareBIndex })),
+        numOps,
         speedChooser: { speed: SPEED_4X },
     };
 }
 
-export function* bubbleSort(unsortedArray: number[]): Iterator<IBubbleState> {
+export function* bubbleSort(unsortedArray: number[], numOps: number[]): Iterator<IBubbleState> {
     const len = unsortedArray.length;
     const sortedArray = ([] as number[]).concat(unsortedArray);
     let j = 0;
     for (let i = 0; i < len; i++) {
-        yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i]);
+        yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i], numOps);
         for (j = i + 1; j < len; j++) {
             const itemA = sortedArray[i];
             const itemB = sortedArray[j];
             if (itemB < itemA) {
-                yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i]);
-                yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[j]);
-                yield makeSortData(sortedArray, i, j, sortedArray[j], sortedArray[j]);
+                yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i], numOps);
+                yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[j], numOps);
+                yield makeSortData(sortedArray, i, j, sortedArray[j], sortedArray[j], numOps);
                 sortedArray[i] = itemB;
                 sortedArray[j] = itemA;
             }
-            yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i]);
+            yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i], numOps);
         }
     }
     // Twice for 2 frames.
-    yield makeSortData(sortedArray, len, len, sortedArray[len], sortedArray[len]);
-    yield makeSortData(sortedArray, len, len, sortedArray[len], sortedArray[len]);
+    yield makeSortData(sortedArray, len, len, sortedArray[len], sortedArray[len], numOps);
+    yield makeSortData(sortedArray, len, len, sortedArray[len], sortedArray[len], numOps);
 }
 
-function scaleToN(scale: number): number {
-    switch (scale) {
-        case SCALE_2:
-            return 50;
-        case SCALE_3:
-            return 100;
-        case SCALE_4:
-            return 200;
-        case SCALE_1:
-        default:
-            return 20;
-    }
+function randN(): number {
+    return Math.floor((Math.random() * 99) + 1);
 }
 
-function genBubbleSort(scale: number): ISorter {
+function randArrayOfNumbers(scale: number): number[] {
+    return times(() => randN(), scaleToN(scale));
+}
+
+function genBubbleSort(scale: number, numOps: number[]): ISorter {
     return {
         scale,
-        sorter: bubbleSort(times(() => Math.floor((Math.random() * 99) + 1), scaleToN(scale))),
+        sorter: bubbleSort(randArrayOfNumbers(scale), numOps),
     };
+}
+
+function bubbleSortOpCounter(scale: number): number {
+    let count = 0;
+    const len = randArrayOfNumbers(scale).length;
+    for (let i = 0; i < len; i++) {
+        for (let j = i + 1; j < len; j++) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
+function genSortScales(scales: number[]): number[] {
+    return scales.map(bubbleSortOpCounter);
 }
 
 function model(state$: Stream<any>): Stream<Reducer> {
     let sorter: ISorter;
+    const numOpsData = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4])
+        .reduce((acc, n) => ({ max: (acc.max > n ? acc.max : n), numOps: (acc.numOps as number[]).concat([n]) }), { max: 0, numOps: [] });
+    const numOps = numOpsData.numOps.map(n => n / numOpsData.max * 90 + 5);
     const initialReducer$ = xs.of(() => {
-        return makeSortData([], 0, 0, 0, 0);
+        console.log('init');
+        return makeSortData([], 0, 0, 0, 0, numOps);
     });
     const addOneReducer$ = state$.map(({ list, speedChooser }) => {
         const speedChoice = speedChooser ? speedChooser.speed : SPEED_4X;
@@ -103,16 +124,17 @@ function model(state$: Stream<any>): Stream<Reducer> {
     }).flatten()
         .mapTo(({ speedChooser, graph }) => {
             if (!sorter) {
-                sorter = genBubbleSort(graph.scale);
+                sorter = genBubbleSort(graph.scale, numOps);
             }
             if (sorter.scale !== graph.scale) {
-                sorter = genBubbleSort(graph.scale);
+                sorter = genBubbleSort(graph.scale, numOps);
             }
             let value = sorter.sorter.next();
             if (value.done) {
-                sorter = genBubbleSort(graph.scale);
+                sorter = genBubbleSort(graph.scale, numOps);
                 value = sorter.sorter.next();
             }
+            graph.numOps = numOps;
             return Object.assign(value.value, { speedChooser, graph });
         });
 

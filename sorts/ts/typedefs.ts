@@ -18,10 +18,11 @@ export interface ISortDataItem {
 }
 
 export interface IBubbleState {
-    list: ISortDataItem[];
     compare: number;
-    speedChooser: { speed: number };
     graph: { scale: number };
+    list: ISortDataItem[];
+    numOps: number[];
+    speedChooser: { speed: number };
 }
 
 export interface ISources {
@@ -38,7 +39,10 @@ export interface ISinks {
     onion: Stream<Reducer>;
 }
 
-export interface IGraphState { scale: number; }
+export interface IGraphState {
+    scale: number;
+    numOps?: number[];
+}
 
 export type Component = (n: ISources) => ISinks;
 

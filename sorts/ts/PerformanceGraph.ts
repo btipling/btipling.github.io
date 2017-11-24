@@ -6,6 +6,7 @@ import {
 import { VNode } from 'snabbdom/vnode';
 import xs, { Stream } from 'xstream';
 import '../sass/performancegraph.sass';
+import { scaleToN } from './sortOps';
 import { IGraphState, ISinks, ISources, Reducer } from './typedefs';
 
 export const SCALE_1 = 1;
@@ -50,32 +51,68 @@ export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
         .element()
         .map((e: Element) => ({ width: e.scrollWidth, height: e.scrollHeight }))
         .startWith({ width: 0, height: 0 }) as Stream<{ width: number, height: number }>;
-
-    return xs.combine(state$, graph$).map(([_, { width, height }]) => {
-        const f = segment();
-        return div('.PerformanceGraph', [
-            div('.PerformanceGraph-graphBG', [
-                h('svg', {
+    return xs.combine(state$, graph$)
+        .filter(([state, { width }]) => state.numOps !== undefined || width === 0)
+        .map(([state, { width, height }]) => {
+            // console.log('view');
+            const distancePerSize = width / 210;
+            const heightDistanceUnits = height / 100;
+            let r = distancePerSize;
+            if (r < 1) {
+                r = 1;
+            } else if (r > 50) {
+                r = 50;
+            }
+            let strokeWidth = distancePerSize / 2;
+            if (strokeWidth > 3) {
+                strokeWidth = 3;
+            }
+            let circles: VNode[] = [];
+            let d = '';
+            if (state.numOps) {
+                const max = heightDistanceUnits * 100;
+                const positions = [
+                    [distancePerSize * scaleToN(SCALE_1), `${max - state.numOps[0] * heightDistanceUnits}`],
+                    [distancePerSize * scaleToN(SCALE_2), `${max - state.numOps[1] * heightDistanceUnits}`],
+                    [distancePerSize * scaleToN(SCALE_3), `${max - state.numOps[2] * heightDistanceUnits}`],
+                    [distancePerSize * scaleToN(SCALE_4), `${max - state.numOps[3] * heightDistanceUnits}`],
+                ];
+                circles = positions.map(([cx, cy]) => h('circle', {
                     attrs: {
-                        height,
-                        width,
+                        cx,
+                        cy,
+                        'fill': '#2468F2',
+                        r,
+                        'stroke': 'transparent',
+                        'stroke-width': 0,
                     },
-                }, [
+                }));
+                d = positions.reduce((acc, [x, y]: [number, number]) => `${acc} ${acc.length ? 'L' : 'M'}  ${x} ${y}`, '');
+            }
+            const f = segment();
+            return div('.PerformanceGraph', [
+                div('.PerformanceGraph-graphBG', [
+                    h('svg', {
+                        attrs: {
+                            height,
+                            width,
+                        },
+                    }, [
                         h('path', {
                             attrs: {
-                                'd': 'M 0 10 L 400 10 C 40 10, 65 10, 95 80 S 150 150, 180 80',
+                                d,
                                 'fill': 'transparent',
-                                'stroke': 'lightblue',
-                                'stroke-width': 3,
-                            }
+                                'stroke': '#83C7DE',
+                                'stroke-width': strokeWidth,
+                            },
                         }),
-                    ]),
-            ]),
-            f(SCALE_1),
-            f(SCALE_2),
-            f(SCALE_3),
-            f(SCALE_4)]);
-    });
+                    ].concat(circles)),
+                ]),
+                f(SCALE_1),
+                f(SCALE_2),
+                f(SCALE_3),
+                f(SCALE_4)]);
+        });
 }
 
 export default function PerformanceGraph(sources: ISources): ISinks {
