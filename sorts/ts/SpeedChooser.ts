@@ -1,8 +1,8 @@
 import {
     button,
     div,
-    label,
     DOMSource,
+    label,
     VNode,
 } from '@cycle/dom';
 import xs, { Stream } from 'xstream';

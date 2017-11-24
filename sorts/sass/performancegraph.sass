@@ -1,5 +1,6 @@
 .PerformanceGraph
     display: grid
+    position: relative
     grid-template-columns: repeat(4, 1fr)
     grid-template-rows: 1fr
     background: darkblue
@@ -11,6 +12,7 @@
     grid-template-rows: 1fr
     outline: 1px solid lightblue
     cursor: pointer
+    z-index: 1
 
 .PerformanceGraph-section:hover
     display: grid
@@ -21,3 +23,14 @@
 .PerformanceGraph-sectionActive
     background: blue
 
+.PerformanceGraph-graphBG
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    overflow: hidden
+    // outline: 2px solid magenta
+
+.PerformanceGraph-graphBG svg
+    outline: 2px solid yellow
