@@ -81,9 +81,10 @@ function path(d: string, strokeWidth: number): VNode {
             'stroke': '#83C7DE',
             'stroke-width': strokeWidth,
         },
-    })
+    });
 }
 
+// Takes normalized numOps and converts it into graph y coordinates.
 function numOpsToPos(numOps: number, n: number, distancePerSize: number, width: number, height: number): [number, number] {
     const heightDistanceUnits = height / 100;
     const heightInUnits = heightDistanceUnits * 100;
@@ -97,6 +98,7 @@ function numOpsToPos(numOps: number, n: number, distancePerSize: number, width: 
     return [x, y];
 }
 
+// numOps normalized is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
 function numOpsNormalized(numOps: number[]): number[] {
     const data = numOps.reduce(
         (acc, n) => ({ max: max(acc.max, n), min: min(acc.min, n) }),
@@ -119,7 +121,6 @@ export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream
         })
         .map(([state, { width, height }, hover]) => {
             const distancePerSize = width / (scaleToN(SCALE_4) + 10);
-            // numOps is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
             const positions = state.numOps ? numOpsNormalized(state.numOps)
                 .map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];
             const graphPaths = paths(positions, width);
