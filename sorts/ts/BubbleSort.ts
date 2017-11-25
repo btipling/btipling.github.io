@@ -10,7 +10,7 @@ import xs, { Stream } from 'xstream';
 import BubbleSortItem from './BubbleSortItem';
 import PerformanceGraph, { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
 import { randArrayOfNumbers, ticker } from './sortUtils';
-import SpeedChooser, { SPEED_4X } from './SpeedChooser';
+import SpeedChooser, { defaultSpeed } from './SpeedChooser';
 import { IBubbleState, ISinks, ISorter, ISources } from './typedefs';
 
 import '../sass/bubblesort.sass';
@@ -32,7 +32,7 @@ export function makeSortData(
         graph: { scale: SCALE_1 },
         list: arrayData.map((value, index) => ({ compare, highlighted, index, value, compareAIndex, compareBIndex })),
         numOps,
-        speedChooser: { speed: SPEED_4X },
+        speedChooser: defaultSpeed(),
     };
 }
 

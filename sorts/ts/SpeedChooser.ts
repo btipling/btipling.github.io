@@ -30,7 +30,7 @@ function intent(domSource: DOMSource): Stream<ISpeedOption> {
 
 function model(actions: Stream<ISpeedOption>): Stream<Reducer> {
     const initReducer$ = xs.of(function initReducer(_: ISpeedOption): ISpeedOption {
-        return { speed: SPEED_4X };
+        return defaultSpeed();
     });
 
     const addReducer$ = actions
@@ -52,6 +52,10 @@ function view(speed$: Stream<ISpeedOption>): Stream<VNode> {
             f(SPEED_4X),
             f(SPEED_5X)]);
     });
+}
+
+export function defaultSpeed(): { speed: number } {
+    return { speed: SPEED_3X };
 }
 
 export default function SpeedChooser(sources: ISources): ISinks {
