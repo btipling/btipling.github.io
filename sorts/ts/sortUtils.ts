@@ -1,3 +1,4 @@
+import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
 import { SCALE_1, SCALE_4 } from './PerformanceGraph';
 import { SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
@@ -32,4 +33,13 @@ export function ticker(speedChooser: { speed: number }): Stream<number> {
             break;
     }
     return xs.periodic(speed);
+}
+
+
+export function randN(): number {
+    return Math.floor((Math.random() * 99) + 1);
+}
+
+export function randArrayOfNumbers(scale: number): number[] {
+    return times(() => randN(), scaleToN(scale));
 }

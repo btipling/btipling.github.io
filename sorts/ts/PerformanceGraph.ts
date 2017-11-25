@@ -9,7 +9,7 @@ import { VNode } from 'snabbdom/vnode';
 import xs, { Stream } from 'xstream';
 import { getSplines } from '../external/bezier-spline';
 import '../sass/performancegraph.sass';
-import { scaleToN } from './sortOps';
+import { scaleToN } from './sortUtils';
 import { IGraphState, ISinks, ISources, Reducer } from './typedefs';
 
 export const SCALE_1 = 1;

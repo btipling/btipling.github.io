@@ -5,11 +5,11 @@ import {
 } from '@cycle/dom';
 import isolate from '@cycle/isolate';
 import { makeCollection } from 'cycle-onionify';
-import { times } from 'ramda';
+// import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
 import BubbleSortItem from './BubbleSortItem';
 import PerformanceGraph, { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
-import { scaleToN, ticker } from './sortOps';
+import { randArrayOfNumbers, ticker } from './sortUtils';
 import SpeedChooser, { SPEED_4X } from './SpeedChooser';
 import { IBubbleState, ISinks, ISorter, ISources } from './typedefs';
 
@@ -59,15 +59,6 @@ export function* bubbleSort(unsortedArray: number[], numOps: number[]): Iterator
     yield makeSortData(sortedArray, len, len, sortedArray[len], sortedArray[len], numOps);
     yield makeSortData(sortedArray, len, len, sortedArray[len], sortedArray[len], numOps);
 }
-
-function randN(): number {
-    return Math.floor((Math.random() * 99) + 1);
-}
-
-function randArrayOfNumbers(scale: number): number[] {
-    return times(() => randN(), scaleToN(scale));
-}
-
 function genBubbleSort(scale: number, numOps: number[]): ISorter {
     return {
         scale,
