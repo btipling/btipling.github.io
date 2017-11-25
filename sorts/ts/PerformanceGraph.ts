@@ -97,6 +97,13 @@ function numOpsToPos(numOps: number, n: number, distancePerSize: number, width: 
     return [x, y];
 }
 
+function numOpsNormalized(numOps: number[]): number[] {
+    const data = numOps.reduce(
+        (acc, n) => ({ max: max(acc.max, n), min: min(acc.min, n) }),
+        { min: Number.POSITIVE_INFINITY, max: 0 });
+    return numOps.map(n => ((95 - 5) * (n - data.min)) / (data.max - data.min) + 5);
+}
+
 export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream<IGraphState>, domSource$: DOMSource) {
     // Get dimensions from previously rendered graph.
     const graphDimensions$ = domSource$.select('.PerformanceGraph-sections')
@@ -113,7 +120,8 @@ export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream
         .map(([state, { width, height }, hover]) => {
             const distancePerSize = width / (scaleToN(SCALE_4) + 10);
             // numOps is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
-            const positions = state.numOps ? state.numOps.map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];
+            const positions = state.numOps ? numOpsNormalized(state.numOps)
+                .map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];
             const graphPaths = paths(positions, width);
             const graphPoints = points(positions, width, state.scale, hover.scale);
             const graphContent = graphPaths.concat(graphPoints);

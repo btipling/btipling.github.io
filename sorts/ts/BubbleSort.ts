@@ -83,14 +83,7 @@ function genSortScales(scales: number[]): number[] {
 
 function model(state$: Stream<any>): Stream<Reducer> {
     let sorter: ISorter;
-    const nO = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4])
-        .reduce((acc, n) => {
-            const max = acc.max > n ? acc.max : n;
-            const min = acc.min < n ? acc.min : n;
-            const ops = (acc.numOps as number[]).concat([n]);
-            return { max, min, numOps: ops };
-        }, { min: Number.POSITIVE_INFINITY, max: 0, numOps: [] });
-    const numOps = nO.numOps.map(n => ((95 - 5) * (n - nO.min)) / (nO.max - nO.min) + 5);
+    const numOps = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4]);
     const initialReducer$ = xs.of(() => {
         return makeSortData([], 0, 0, 0, 0, numOps);
     });
