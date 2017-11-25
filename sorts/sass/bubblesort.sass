@@ -6,8 +6,14 @@
 .BubbleSort-demo
     position: relative
     display: grid
-    grid-template-columns: 100px 1fr
+    grid-template-columns: 75px 1fr 75px
     grid-template-rows: 1fr
+
+.BubbleSort-demo .SpeedChooser
+    opacity: 0;
+
+.BubbleSort-demo:hover .SpeedChooser
+    opacity: 1;
 
 .BubbleSort-listContainer
     display: grid
@@ -30,8 +36,8 @@
 
 .BubbleSort-compareAt
     position: absolute
-    left: 100px
-    right: 0
+    left: 75px
+    right: 75px
     border: 0 solid rgba(255, 255, 255, 0.8)
     border-bottom-width: 2px
     box-shadow: 0 2px 20px rgba(151, 228, 255, 0.8)

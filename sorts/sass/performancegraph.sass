@@ -1,16 +1,17 @@
 .PerformanceGraph
     display: grid
-    grid-template-columns: 1fr 8fr
+    position: relative
+    grid-template-columns: 1fr 4fr 1fr
     grid-template-rows: 10fr 1fr
 
-.PerformanceGraphYLabel
+.PerformanceGraph-label
     display: grid
     grid-template-columns: 1fr
     grid-template-rows: 1fr
     align-self: center
     visibility: hidden
 
-.PerformanceGraph:hover .PerformanceGraphYLabel
+.PerformanceGraph:hover .PerformanceGraph-label
     visibility: visible
 
 .PerformanceGraph-sections
@@ -35,3 +36,12 @@
     right: 0
     bottom: 0
     overflow: hidden
+
+.PerformanceGraph-pointLabel
+    display: grid
+    grid-template-columns: 2fr 1fr
+    grid-template-rows: repeat(2, 1fr)
+    text-align: left
+
+.PerformanceGraph-infoData
+    text-align: right

@@ -84,7 +84,20 @@ function path(d: string, strokeWidth: number): VNode {
     });
 }
 
-// Takes normalized numOps and converts it into graph y coordinates.
+function pointInfo(scale: number, numOps?: number[]) {
+    if (!scale || !numOps) {
+        return [];
+    }
+    const numOperations = numOps[scale - 1].toLocaleString();
+    const numSortItems = scaleToN(scale).toLocaleString();
+
+    return [
+        div(label('Total items: ')), div('.PerformanceGraph-infoData', label(`${numSortItems}`)),
+        div(label('Total operations: ')), div('.PerformanceGraph-infoData', label(`${numOperations}`)),
+    ];
+}
+
+// Takes normalized numOps and scale count and converts it into graph x, y coordinates.
 function numOpsToPos(numOps: number, n: number, distancePerSize: number, width: number, height: number): [number, number] {
     const heightDistanceUnits = height / 100;
     const heightInUnits = heightDistanceUnits * 100;
@@ -125,19 +138,22 @@ export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream
             const distancePerSize = width / (scaleToN(SCALE_4) + 10);
             const positions = state.numOps ? numOpsNormalized(state.numOps)
                 .map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];
+
             const graphPaths = paths(positions, width);
             const graphPoints = points(positions, width, state.scale, hover.scale);
+            const graphPointInfo = pointInfo(hover.scale, state.numOps);
+
             const graphContent = graphPaths.concat(graphPoints);
             const segments = map(segment(), range(SCALE_1, SCALE_4 + 1));
 
             return div('.PerformanceGraph', [
-                div('.PerformanceGraphYLabel', label('Number of Operations')),
+                div('.PerformanceGraph-label', label('Number of Operations')),
                 div('.PerformanceGraph-sections', [
                     div('.PerformanceGraph-graphBG', [
                         h('svg', { attrs: { height, width } }, graphContent),
                     ]),
-                ].concat(segments)),
-                div(''), div('.PerformanceGraphYLabel', label('Number of Items')),
+                ].concat(segments)), div('.PerformanceGraph-label .PerformanceGraph-pointLabel', graphPointInfo),
+                div(''), div('.PerformanceGraph-label', label('Number of Items')), div(''),
             ]);
         });
 }

@@ -131,6 +131,7 @@ function view(listVNode$: Stream<[IState, VNode, VNode[], VNode]>): Stream<VNode
                         bottom: `${compare}%`,
                     },
                 }),
+                div(''),
             ]),
             h2('Bubble Sort'),
             div('.BubbleSort-graph', graphNode),
