@@ -9,8 +9,8 @@ import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
 import BubbleSortItem from './BubbleSortItem';
 import PerformanceGraph, { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
-import { scaleToN } from './sortOps';
-import SpeedChooser, { SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
+import { scaleToN, ticker } from './sortOps';
+import SpeedChooser, { SPEED_4X } from './SpeedChooser';
 import { IBubbleState, ISinks, ISorter, ISources } from './typedefs';
 
 import '../sass/bubblesort.sass';
@@ -103,29 +103,9 @@ function model(state$: Stream<any>): Stream<Reducer> {
     const initialReducer$ = xs.of(() => {
         return makeSortData([], 0, 0, 0, 0, numOps);
     });
-    const addOneReducer$ = state$.map(({ list, speedChooser }) => {
-        const speedChoice = speedChooser ? speedChooser.speed : SPEED_4X;
-        let speed;
-        switch (speedChoice) {
-            case SPEED_1X:
-                speed = 1000;
-                break;
-            case SPEED_2X:
-                speed = 500;
-                break;
-            case SPEED_3X:
-                speed = 250;
-                break;
-            case SPEED_5X:
-                speed = 50;
-                break;
-            case SPEED_4X:
-            default:
-                speed = 100;
-                break;
-        }
-        return xs.periodic(speed).mapTo({ list, speedChooser });
-    }).flatten()
+    const addOneReducer$ = state$
+        .map(({ list, speedChooser }) => ticker(speedChooser).mapTo({ list, speedChooser }))
+        .flatten()
         .mapTo(({ speedChooser, graph }) => {
             if (!sorter) {
                 sorter = genBubbleSort(graph.scale, numOps);

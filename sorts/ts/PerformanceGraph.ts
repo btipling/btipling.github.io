@@ -17,23 +17,25 @@ export const SCALE_2 = 2;
 export const SCALE_3 = 3;
 export const SCALE_4 = 4;
 
-export function intent(domSource: DOMSource): Stream<IGraphState> {
+export function intent(domSource: DOMSource): Stream<[IGraphState, IGraphState]> {
     const cn = 'PerformanceGraph-section';
-    const f = (scale: number) => domSource.select(`.${cn}${scale}`).events('click').map((): IGraphState => ({ scale }));
-    return xs.merge(
-        f(SCALE_1),
-        f(SCALE_2),
-        f(SCALE_3),
-        f(SCALE_4));
+    const gen = f => xs.merge.apply(null, map(f, range(SCALE_1, SCALE_4 + 1)));
+
+    const select = (scale, event, fn) => domSource.select(`.${cn}${scale}`).events(event).map(fn);
+    const click = scale => select(scale, 'click', () => ({ scale })).startWith({ scale: SCALE_1 }) as any as Stream<IGraphState>;;
+    const over = scale => select(scale, 'mouseover', () => ({ scale }));
+    const out = scale => select(scale, 'mouseout', () => ({ scale: 0 }));
+    const overout = xs.merge(gen(over), gen(out)).startWith({ scale: 0 }) as any as Stream<IGraphState>;
+
+    return xs.combine(gen(click), overout);
 }
 
-export function model(actions: Stream<IGraphState>, state: Stream<IGraphState>) {
-
+export function model(actions$: Stream<[IGraphState, IGraphState]>, state: Stream<IGraphState>) {
     const initReducer$ = xs.of(function initReducer(_: IGraphState): IGraphState {
         return { scale: SCALE_1 };
     });
 
-    const addReducer$ = xs.merge(actions, state)
+    const addReducer$ = xs.merge(actions$.map(action => action[0]), state)
         .map(scale => function addReducer(_: IGraphState): IGraphState {
             return scale;
         });
@@ -48,17 +50,17 @@ export function segment(): (scale: number) => VNode {
     };
 }
 
-function points(positions: Array<[number, number]>, width: number, scale: number): VNode[] {
+function points(positions: Array<[number, number]>, width: number, scale: number, overScale: number): VNode[] {
     const r = min(15, max(1, width / 100));
-    return positions.map(([cx, cy], n) => point(cx, cy, r, n + 1 === scale));
+    return positions.map(([cx, cy], n) => point(cx, cy, r, n + 1 === scale, n + 1 === overScale));
 }
 
-function point(cx: number, cy: number, r: number, active: boolean): VNode {
+function point(cx: number, cy: number, r: number, active: boolean, highlighted: boolean): VNode {
     return h('circle', {
         attrs: {
             cx,
             cy,
-            'fill': active ? '#C1D1F2' : '#2468F2',
+            'fill': highlighted ? '#FFF' : active ? '#C1D1F2' : '#2468F2',
             r,
             'stroke': 'transparent',
             'stroke-width': 0,
@@ -95,7 +97,7 @@ function numOpsToPos(numOps: number, n: number, distancePerSize: number, width: 
     return [x, y];
 }
 
-export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
+export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream<IGraphState>, domSource$: DOMSource) {
     // Get dimensions from previously rendered graph.
     const graphDimensions$ = domSource$.select('.PerformanceGraph-sections')
         .element()
@@ -103,14 +105,17 @@ export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
         .startWith({ width: 0, height: 0 }) as Stream<{ width: number, height: number }>;
 
     // Combine state and dimensions to create graph.
-    return xs.combine(state$, graphDimensions$)
-        .filter(([state, { width }]) => state.numOps !== undefined || width === 0)
-        .map(([state, { width, height }]) => {
+    const hover$ = action$.map(action => action[1]).startWith({ scale: 0 });
+    return xs.combine(state$, graphDimensions$, hover$)
+        .filter(([state, { width }, _]) => {
+            return state.numOps !== undefined || width === 0;
+        })
+        .map(([state, { width, height }, hover]) => {
             const distancePerSize = width / (scaleToN(SCALE_4) + 10);
             // numOps is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
             const positions = state.numOps ? state.numOps.map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];
             const graphPaths = paths(positions, width);
-            const graphPoints = points(positions, width, state.scale);
+            const graphPoints = points(positions, width, state.scale, hover.scale);
             const graphContent = graphPaths.concat(graphPoints);
             const segments = map(segment(), range(SCALE_1, SCALE_4 + 1));
 
@@ -130,7 +135,7 @@ export default function PerformanceGraph(sources: ISources): ISinks {
     const state$ = sources.onion.state$ as any as Stream<IGraphState>;
     const action$ = intent(sources.dom);
     const reducers$ = model(action$, state$);
-    const vdom$ = view(state$, sources.dom);
+    const vdom$ = view(action$, state$, sources.dom);
     return {
         dom: vdom$,
         onion: reducers$,
