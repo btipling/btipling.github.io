@@ -48,17 +48,17 @@ export function segment(): (scale: number) => VNode {
     };
 }
 
-function points(positions: Array<[number, number]>, width: number): VNode[] {
+function points(positions: Array<[number, number]>, width: number, scale: number): VNode[] {
     const r = min(15, max(1, width / 100));
-    return map(([cx, cy]) => point(cx, cy, r), positions);
+    return positions.map(([cx, cy], n) => point(cx, cy, r, n + 1 === scale));
 }
 
-function point(cx: number, cy: number, r: number): VNode {
+function point(cx: number, cy: number, r: number, active: boolean): VNode {
     return h('circle', {
         attrs: {
             cx,
             cy,
-            'fill': '#2468F2',
+            'fill': active ? '#C1D1F2' : '#2468F2',
             r,
             'stroke': 'transparent',
             'stroke-width': 0,
@@ -110,7 +110,7 @@ export function view(state$: Stream<IGraphState>, domSource$: DOMSource) {
             // numOps is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
             const positions = state.numOps ? state.numOps.map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];
             const graphPaths = paths(positions, width);
-            const graphPoints = points(positions, width);
+            const graphPoints = points(positions, width, state.scale);
             const graphContent = graphPaths.concat(graphPoints);
             const segments = map(segment(), range(SCALE_1, SCALE_4 + 1));
 
