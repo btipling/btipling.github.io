@@ -100,10 +100,12 @@ function numOpsToPos(numOps: number, n: number, distancePerSize: number, width: 
 
 // numOps normalized is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
 function numOpsNormalized(numOps: number[]): number[] {
+    const a = 5;
+    const b = 95;
     const data = numOps.reduce(
         (acc, n) => ({ max: max(acc.max, n), min: min(acc.min, n) }),
         { min: Number.POSITIVE_INFINITY, max: 0 });
-    return numOps.map(n => ((95 - 5) * (n - data.min)) / (data.max - data.min) + 5);
+    return numOps.map(n => ((b - a) * (n - data.min)) / (data.max - data.min) + a);
 }
 
 export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream<IGraphState>, domSource$: DOMSource) {
