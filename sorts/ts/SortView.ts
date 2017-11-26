@@ -120,9 +120,9 @@ function model(state$: Stream<any>): Stream<Reducer> {
 function view(listVNode$: Stream<[IState, VNode, VNode[], VNode]>): Stream<VNode> {
     return listVNode$.map(([state, controls, listItems, graphNode]) => {
         const { compare } = state as any as IBubbleState;
-        return div('.BubbleSort', [
-            div('.BubbleSort-demo', [
-                div('.BubbleSort-controls', [controls]),
+        return div('.SortView', [
+            div('.SortView-demo', [
+                div('.SortView-controls', [controls]),
                 div({
                     class: {
                         'BubbleSort-listContainer': true,
@@ -143,7 +143,7 @@ function view(listVNode$: Stream<[IState, VNode, VNode[], VNode]>): Stream<VNode
                 div(''),
             ]),
             h2('Bubble Sort'),
-            div('.BubbleSort-graph', graphNode),
+            div('.SortView-graph', graphNode),
         ]);
     });
 }

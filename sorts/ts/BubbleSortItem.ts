@@ -5,6 +5,8 @@ import {
 import xs from 'xstream';
 import { ISinks, ISortDataItem, ISources } from './typedefs';
 
+import '../sass/bubblesortitem.sass';
+
 export default function Item(sources: ISources): ISinks {
     const state$ = sources.onion.state$;
 
@@ -12,10 +14,10 @@ export default function Item(sources: ISources): ISinks {
         const sortData = state as any as ISortDataItem;
         return div({
             class: {
-                'BubbleSort-compareA': sortData.highlighted === sortData.value &&
+                'BubbleSortItem': true,
+                'BubbleSortItem-compareA': sortData.highlighted === sortData.value &&
                     (sortData.compareAIndex === sortData.index || sortData.compareBIndex === sortData.index),
-                'BubbleSort-compareB': (sortData.highlighted !== sortData.value && sortData.compareBIndex === sortData.index),
-                'BubbleSort-item': true,
+                'BubbleSortItem-compareB': (sortData.highlighted !== sortData.value && sortData.compareBIndex === sortData.index),
             },
             style: {
                 height: `${sortData.value}%`,
