@@ -137,6 +137,7 @@ function view(listVNode$: Stream<[IState, VNode, VNode[], VNode]>): Stream<VNode
                     },
                     style: {
                         bottom: `${compare}%`,
+                        visibility: compare >= 0 ? 'visible' : 'hidden',
                     },
                 }),
                 div(''),
