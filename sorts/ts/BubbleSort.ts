@@ -39,25 +39,33 @@ export function makeSortData(
 export function* bubbleSort(unsortedArray: number[], numOps: number[]): Iterator<IBubbleState> {
     const len = unsortedArray.length;
     const sortedArray = ([] as number[]).concat(unsortedArray);
-    let j = 0;
-    for (let i = 0; i < len; i++) {
-        yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i], numOps);
-        for (j = i + 1; j < len; j++) {
-            const itemA = sortedArray[i];
-            const itemB = sortedArray[j];
+    let a = 0;
+    let b = 0;
+    for (let i = len; i > 0; i--) {
+        let swapped = false;
+        yield makeSortData(sortedArray, a, b, sortedArray[b], sortedArray[b], numOps);
+        for (let j = 0; j < i - 1; j++) {
+            a = j;
+            b = j + 1;
+            const itemA = sortedArray[a];
+            const itemB = sortedArray[b];
+            yield makeSortData(sortedArray, a, b, sortedArray[a], sortedArray[a], numOps);
             if (itemB < itemA) {
-                yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i], numOps);
-                yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[j], numOps);
-                yield makeSortData(sortedArray, i, j, sortedArray[j], sortedArray[j], numOps);
-                sortedArray[i] = itemB;
-                sortedArray[j] = itemA;
+                sortedArray[a] = itemB;
+                sortedArray[b] = itemA;
+                yield makeSortData(sortedArray, b, a, sortedArray[b], sortedArray[b], numOps);
+                swapped = true;
+            } else {
+                yield makeSortData(sortedArray, b, -1, sortedArray[b], sortedArray[b], numOps);
             }
-            yield makeSortData(sortedArray, i, j, sortedArray[i], sortedArray[i], numOps);
+        }
+        if (!swapped) {
+            break;
         }
     }
     // Twice for 2 frames.
-    yield makeSortData(sortedArray, len, len, sortedArray[len], sortedArray[len], numOps);
-    yield makeSortData(sortedArray, len, len, sortedArray[len], sortedArray[len], numOps);
+    yield makeSortData(sortedArray, len, len, -1, sortedArray[len], numOps);
+    yield makeSortData(sortedArray, len, len, -1, sortedArray[len], numOps);
 }
 function genBubbleSort(scale: number, numOps: number[]): ISorter {
     return {
@@ -69,8 +77,8 @@ function genBubbleSort(scale: number, numOps: number[]): ISorter {
 function bubbleSortOpCounter(scale: number): number {
     let count = 0;
     const len = randArrayOfNumbers(scale).length;
-    for (let i = 0; i < len; i++) {
-        for (let j = i + 1; j < len; j++) {
+    for (let i = len; i > 0; i--) {
+        for (let j = 0; j < i - 1; j++) {
             count += 1;
         }
     }

@@ -12,7 +12,8 @@ export default function Item(sources: ISources): ISinks {
         const sortData = state as any as ISortDataItem;
         return div({
             class: {
-                'BubbleSort-compareA': sortData.compareAIndex === sortData.index || (sortData.highlighted === sortData.value && sortData.compareBIndex === sortData.index),
+                'BubbleSort-compareA': sortData.highlighted === sortData.value &&
+                    (sortData.compareAIndex === sortData.index || sortData.compareBIndex === sortData.index),
                 'BubbleSort-compareB': (sortData.highlighted !== sortData.value && sortData.compareBIndex === sortData.index),
                 'BubbleSort-item': true,
             },

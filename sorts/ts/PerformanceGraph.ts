@@ -92,8 +92,8 @@ function pointInfo(scale: number, numOps?: number[]) {
     const numSortItems = scaleToN(scale).toLocaleString();
 
     return [
-        div(label('Total items: ')), div('.PerformanceGraph-infoData', label(`${numSortItems}`)),
-        div(label('Total operations: ')), div('.PerformanceGraph-infoData', label(`${numOperations}`)),
+        div(label('Items:')), div('.PerformanceGraph-infoData', label(`${numSortItems}`)),
+        div(label('Iterations:')), div('.PerformanceGraph-infoData', label(`${numOperations}`)),
     ];
 }
 
