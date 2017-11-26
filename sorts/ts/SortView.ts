@@ -13,7 +13,7 @@ import { randArrayOfNumbers, ticker } from './sortUtils';
 import SpeedChooser, { defaultSpeed } from './SpeedChooser';
 import { IBubbleState, ISinks, ISorter, ISources } from './typedefs';
 
-import '../sass/bubblesort.sass';
+import '../sass/sortview.sass';
 
 export interface IState {
     content: string;
