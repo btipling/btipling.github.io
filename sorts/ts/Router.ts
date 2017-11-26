@@ -4,10 +4,10 @@ import { hasIn, reduce } from 'ramda';
 import { Component, IRoute, ISinks, ISources } from './typedefs';
 
 interface IRouteSinksMap { [key: string]: ISinks; }
-type SortView = (Sort: Component, routes: IRoute[]) => Component;
+type SortView = (route: IRoute, routes: IRoute[]) => Component;
 
 export function runRouter(routes: IRoute[], sources: ISources, routeSinks: IRouteSinksMap, sortView: SortView) {
-    const routesMap = reduce((acc, route) => Object.assign({ [route.path]: route.component }, acc), {}, routes);
+    const routesMap = reduce((acc, route) => Object.assign({ [route.path]: route }, acc), {}, routes);
     return (pathname: string): ISinks => {
         if (!hasIn(pathname, routeSinks)) {
             routeSinks[pathname] = sortView(routesMap[pathname], routes)(sources);

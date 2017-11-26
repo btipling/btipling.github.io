@@ -30,12 +30,12 @@ function view(listVNode$: Stream<[VNode, VNode, VNode, VNode]>): Stream<VNode> {
     });
 }
 
-export default function SortView(Sort: Component, routes: IRoute[]): Component {
+export default function SortView(route: IRoute, routes: IRoute[]): Component {
     return (sources: ISources): ISinks => {
-        const sortSinks = Sort(sources as any);
+        const sortSinks = route.component(sources as any);
         const speedSinks = isolate(SpeedChooser, 'speedChooser')(sources as any);
         const graphSinks = isolate(PerformanceGraph, 'graph')(sources as any);
-        const sortChooser = SortChooser(routes)(sources as any);
+        const sortChooser = SortChooser(route, routes)(sources as any);
 
         const sortReducer$ = sortSinks.onion as any as Stream<Reducer>;
         const speedReducer$ = speedSinks.onion as any as Stream<Reducer>;
