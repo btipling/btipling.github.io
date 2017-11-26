@@ -19,7 +19,7 @@ export interface ISortDataItem {
     highlighted: number;
 }
 
-export interface IBubbleState {
+export interface ISortState {
     compare: number;
     graph: { scale: number };
     list: ISortDataItem[];
@@ -49,6 +49,6 @@ export interface IGraphState {
 export type Component = (n: ISources) => ISinks;
 
 export interface ISorter {
-    sorter: Iterator<IBubbleState>;
+    sorter: Iterator<ISortState>;
     scale: number;
 }

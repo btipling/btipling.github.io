@@ -7,29 +7,12 @@ import { makeCollection } from 'cycle-onionify';
 import xs, { Stream } from 'xstream';
 import BubbleSortItem from './BubbleSortItem';
 import { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
-import { randArrayOfNumbers, ticker } from './sortUtils';
-import { defaultSpeed } from './SpeedChooser';
-import { IBubbleState, ISinks, ISorter, ISources, IState, Reducer } from './typedefs';
+import { makeSortData, randArrayOfNumbers, sortModel } from './sortUtils';
+import { ISinks, ISorter, ISortState, ISources, IState } from './typedefs';
 
 import '../sass/bubblesort.sass';
 
-export function makeSortData(
-    arrayData: number[],
-    compareAIndex: number,
-    compareBIndex: number,
-    compare: number,
-    highlighted: number,
-    numOps: number[]): IBubbleState {
-    return {
-        compare,
-        graph: { scale: SCALE_1 },
-        list: arrayData.map((value, index) => ({ compare, highlighted, index, value, compareAIndex, compareBIndex })),
-        numOps,
-        speedChooser: defaultSpeed(),
-    };
-}
-
-export function* bubbleSort(unsortedArray: number[], numOps: number[]): Iterator<IBubbleState> {
+export function* bubbleSort(unsortedArray: number[], numOps: number[]): Iterator<ISortState> {
     const len = unsortedArray.length;
     const sortedArray = ([] as number[]).concat(unsortedArray);
     let a = 0;
@@ -82,37 +65,9 @@ function genSortScales(scales: number[]): number[] {
     return scales.map(bubbleSortOpCounter);
 }
 
-function model(state$: Stream<any>): Stream<Reducer> {
-    let sorter: ISorter;
-    const numOps = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4]);
-    const initialReducer$ = xs.of(() => {
-        return makeSortData([], 0, 0, 0, 0, numOps);
-    });
-    const addOneReducer$ = state$
-        .map(({ list, speedChooser }) => ticker(speedChooser).mapTo({ list, speedChooser }))
-        .flatten()
-        .mapTo(({ speedChooser, graph }) => {
-            if (!sorter) {
-                sorter = genBubbleSort(graph.scale, numOps);
-            }
-            if (sorter.scale !== graph.scale) {
-                sorter = genBubbleSort(graph.scale, numOps);
-            }
-            let value = sorter.sorter.next();
-            if (value.done) {
-                sorter = genBubbleSort(graph.scale, numOps);
-                value = sorter.sorter.next();
-            }
-            graph.numOps = numOps;
-            return Object.assign(value.value, { speedChooser, graph });
-        });
-
-    return xs.merge(initialReducer$, addOneReducer$) as any as Stream<Reducer>;
-}
-
 function view(listVNode$: Stream<[IState, VNode[]]>): Stream<VNode> {
     return listVNode$.map(([state, listItems]) => {
-        const { compare } = state as any as IBubbleState;
+        const { compare } = state as any as ISortState;
         return div('.BubbleSort', [
             div({
                 class: {
@@ -149,8 +104,11 @@ export default function BubbleSort(sources: ISources): ISinks {
         itemKey: (_: any, index: number) => index.toString(),
         itemScope: (key: string) => key,
     });
+
+    const numOps = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4]);
+
     const listSinks = isolate(List, 'list')(sources as any);
-    const reducer$ = model(state$);
+    const reducer$ = sortModel(numOps, genBubbleSort)(state$);
     const vdom$ = view(xs.combine(state$, listSinks.dom));
     return {
         dom: vdom$,
