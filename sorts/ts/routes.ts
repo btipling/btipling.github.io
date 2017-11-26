@@ -1,9 +1,9 @@
-import BubbleSort from './BubbleSort';
+import SortView from './SortView';
 import { Component } from './typedefs';
 
 const routes: { [key: string]: Component; } = {
-    '/': BubbleSort,
-    '/bubblesort': BubbleSort,
+    '/': SortView,
+    '/bubblesort': SortView,
 };
 
 export default routes;
