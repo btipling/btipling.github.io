@@ -1,21 +1,21 @@
 
 import { Location } from 'history';
-import { hasIn } from 'ramda';
-import { Component, ISinks, ISources } from './typedefs';
+import { hasIn, reduce } from 'ramda';
+import { Component, IRoute, ISinks, ISources } from './typedefs';
 
-interface IRoutesMap { [key: string]: Component; }
 interface IRouteSinksMap { [key: string]: ISinks; }
 
-export function runRouter(routes: IRoutesMap, sources: ISources, routeSinks: IRouteSinksMap) {
+export function runRouter(routes: IRoute[], sources: ISources, routeSinks: IRouteSinksMap) {
+    const routesMap = reduce((acc, route) => Object.assign({ [route.path]: route.component }, acc), {}, routes);
     return (pathname: string): ISinks => {
         if (!hasIn(pathname, routeSinks)) {
-            routeSinks[pathname] = routes[pathname](sources);
+            routeSinks[pathname] = routesMap[pathname](sources);
         }
         return routeSinks[pathname];
     };
 }
 
-export default function Router(routes: IRoutesMap): Component {
+export default function Router(routes: IRoute[]): Component {
     return (sources: ISources): ISinks => {
         const history$ = sources.history;
         const runRoute = runRouter(routes, sources, {});

@@ -52,3 +52,9 @@ export interface ISorter {
     sorter: Iterator<ISortState>;
     scale: number;
 }
+
+export interface IRoute {
+    component: (ISources) => ISinks;
+    name: string;
+    path: string;
+}

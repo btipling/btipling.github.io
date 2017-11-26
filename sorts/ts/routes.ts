@@ -1,10 +1,24 @@
 import BubbleSort from './BubbleSort';
+import InsertionSort from './InsertionSort';
 import SortView from './SortView';
-import { Component } from './typedefs';
+import { IRoute } from './typedefs';
 
-const routes: { [key: string]: Component; } = {
-    '/': SortView(BubbleSort),
-    '/bubblesort': SortView(BubbleSort),
-};
+const routes: IRoute[] = [
+    {
+        component: SortView(BubbleSort),
+        name: '',
+        path: '/',
+    },
+    {
+        component: SortView(BubbleSort),
+        name: 'Bubble Sort',
+        path: '/bubble',
+    },
+    {
+        component: SortView(InsertionSort),
+        name: 'Insertion Sort',
+        path: '/insertion',
+    },
+];
 
 export default routes;
