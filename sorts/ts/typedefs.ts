@@ -4,8 +4,10 @@ import { StateSource } from 'cycle-onionify';
 import { Location } from 'history';
 import { Stream } from 'xstream';
 
-interface IState {
-    content: string;
+export interface IState {
+    graph: object;
+    sort: object;
+    speedChooser: object;
 }
 
 export interface ISortDataItem {
