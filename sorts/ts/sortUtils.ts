@@ -1,8 +1,13 @@
+import {
+    VNode,
+} from '@cycle/dom';
+import { makeCollection } from 'cycle-onionify';
 import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
+import BubbleSortItem from './BubbleSortItem';
 import { SCALE_1, SCALE_4 } from './PerformanceGraph';
 import { defaultSpeed, SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
-import { ISorter, ISortState, Reducer } from './typedefs';
+import { Component, ISorter, ISortState, Reducer } from './typedefs';
 
 export function scaleToN(scale: number): number {
     const a = 10;
@@ -86,4 +91,17 @@ export function sortModel(numOps: number[], genSort: (scale: number, numOps: num
             });
         return xs.merge(initialReducer$, addOneReducer$) as any as Stream<Reducer>;
     };
+}
+
+export function sortComponentList(): Component {
+    return makeCollection({
+        collectSinks: (instances: any) => ({
+            dom: instances.pickCombine('dom')
+                .map((itemVNodes: VNode[]) => itemVNodes),
+            onion: instances.pickMerge('onion'),
+        }),
+        item: BubbleSortItem,
+        itemKey: (_: any, index: number) => index.toString(),
+        itemScope: (key: string) => key,
+    });
 }

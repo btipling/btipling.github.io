@@ -3,11 +3,9 @@ import {
     VNode,
 } from '@cycle/dom';
 import isolate from '@cycle/isolate';
-import { makeCollection } from 'cycle-onionify';
 import xs, { Stream } from 'xstream';
-import BubbleSortItem from './BubbleSortItem';
 import { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
-import { makeSortData, randArrayOfNumbers, sortModel } from './sortUtils';
+import { makeSortData, randArrayOfNumbers, sortComponentList, sortModel } from './sortUtils';
 import { ISinks, ISorter, ISortState, ISources, IState } from './typedefs';
 
 import '../sass/bubblesort.sass';
@@ -94,16 +92,7 @@ export default function BubbleSort(sources: ISources): ISinks {
     // Defining the list of items to be sorted.
     const state$ = sources.onion.state$;
     // state$.subscribe({ complete: console.log, error: console.log, next: console.log });
-    const List = makeCollection({
-        collectSinks: (instances: any) => ({
-            dom: instances.pickCombine('dom')
-                .map((itemVNodes: VNode[]) => itemVNodes),
-            onion: instances.pickMerge('onion'),
-        }),
-        item: BubbleSortItem,
-        itemKey: (_: any, index: number) => index.toString(),
-        itemScope: (key: string) => key,
-    });
+    const List = sortComponentList();
 
     const numOps = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4]);
 
