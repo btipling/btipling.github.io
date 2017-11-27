@@ -12,21 +12,19 @@ export function* insertionSort(unsortedArray: number[], numOps: number[]): Itera
     let a = 1;
     while (a < len) {
         let b = a;
-        yield makeSortData(sortedArray, b - 1, b, sortedArray[b], sortedArray[b], numOps);
         while (b > 0 && sortedArray[b - 1] > sortedArray[b]) {
-            yield makeSortData(sortedArray, b - 1, b, sortedArray[b], sortedArray[b - 1], numOps);
-            yield makeSortData(sortedArray, b - 1, b, sortedArray[b - 1], sortedArray[b - 1], numOps);
+            yield makeSortData(sortedArray, b, b - 1, sortedArray[b], b, numOps);
             const t = sortedArray[b];
             sortedArray[b] = sortedArray[b - 1];
             sortedArray[b - 1] = t;
-            yield makeSortData(sortedArray, b - 1, b, sortedArray[b], sortedArray[b], numOps);
+            yield makeSortData(sortedArray, b - 1, b, sortedArray[b - 1], b - 1, numOps);
             b -= 1;
         }
         a += 1;
     }
     // Twice for 2 frames.
-    yield makeSortData(sortedArray, len, len, -1, sortedArray[len], numOps);
-    yield makeSortData(sortedArray, len, len, -1, sortedArray[len], numOps);
+    yield makeSortData(sortedArray, len, len, -1, -1, numOps);
+    yield makeSortData(sortedArray, len, len, -1, -1, numOps);
 }
 function genInsertionSort(scale: number, numOps: number[]): ISorter {
     return {

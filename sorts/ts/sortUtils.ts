@@ -110,10 +110,10 @@ export function sortComponentList(): Component {
 export function sortView(listVNode$: Stream<[IState, VNode[]]>): Stream<VNode> {
     return listVNode$.map(([state, listItems]) => {
         const { compare } = state as any as ISortState;
-        return div('.BubbleSort', [
+        return div('.SortDemo', [
             div({
                 class: {
-                    'BubbleSort-listContainer': true,
+                    'SortDemo-listContainer': true,
                 },
                 style: {
                     'grid-template-columns': `repeat(${listItems.length}, 1fr)`,
@@ -121,7 +121,7 @@ export function sortView(listVNode$: Stream<[IState, VNode[]]>): Stream<VNode> {
             }, listItems),
             div({
                 class: {
-                    'BubbleSort-compareAt': true,
+                    'SortDemo-compareAt': true,
                 },
                 style: {
                     bottom: `${compare}%`,
