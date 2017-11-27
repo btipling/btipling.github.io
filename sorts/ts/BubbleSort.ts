@@ -1,12 +1,8 @@
-import {
-    div,
-    VNode,
-} from '@cycle/dom';
 import isolate from '@cycle/isolate';
-import xs, { Stream } from 'xstream';
+import xs from 'xstream';
 import { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
-import { makeSortData, randArrayOfNumbers, sortComponentList, sortModel } from './sortUtils';
-import { ISinks, ISorter, ISortState, ISources, IState } from './typedefs';
+import { makeSortData, randArrayOfNumbers, sortComponentList, sortModel, sortView } from './sortUtils';
+import { ISinks, ISorter, ISortState, ISources } from './typedefs';
 
 import '../sass/bubblesort.sass';
 
@@ -63,31 +59,6 @@ function genSortScales(scales: number[]): number[] {
     return scales.map(bubbleSortOpCounter);
 }
 
-function view(listVNode$: Stream<[IState, VNode[]]>): Stream<VNode> {
-    return listVNode$.map(([state, listItems]) => {
-        const { compare } = state as any as ISortState;
-        return div('.BubbleSort', [
-            div({
-                class: {
-                    'BubbleSort-listContainer': true,
-                },
-                style: {
-                    'grid-template-columns': `repeat(${listItems.length}, 1fr)`,
-                },
-            }, listItems),
-            div({
-                class: {
-                    'BubbleSort-compareAt': true,
-                },
-                style: {
-                    bottom: `${compare}%`,
-                    visibility: compare >= 0 ? 'visible' : 'hidden',
-                },
-            }),
-        ]);
-    });
-}
-
 export default function BubbleSort(sources: ISources): ISinks {
     // Defining the list of items to be sorted.
     const state$ = sources.onion.state$;
@@ -98,7 +69,7 @@ export default function BubbleSort(sources: ISources): ISinks {
 
     const listSinks = isolate(List, 'list')(sources as any);
     const reducer$ = sortModel(numOps, genBubbleSort)(state$);
-    const vdom$ = view(xs.combine(state$, listSinks.dom));
+    const vdom$ = sortView(xs.combine(state$, listSinks.dom));
     return {
         dom: vdom$,
         onion: reducer$,

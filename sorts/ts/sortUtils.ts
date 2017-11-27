@@ -1,4 +1,5 @@
 import {
+    div,
     VNode,
 } from '@cycle/dom';
 import { makeCollection } from 'cycle-onionify';
@@ -7,7 +8,7 @@ import xs, { Stream } from 'xstream';
 import BubbleSortItem from './BubbleSortItem';
 import { SCALE_1, SCALE_4 } from './PerformanceGraph';
 import { defaultSpeed, SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
-import { Component, ISorter, ISortState, Reducer } from './typedefs';
+import { Component, ISorter, ISortState, IState, Reducer } from './typedefs';
 
 export function scaleToN(scale: number): number {
     const a = 10;
@@ -105,3 +106,29 @@ export function sortComponentList(): Component {
         itemScope: (key: string) => key,
     });
 }
+
+export function sortView(listVNode$: Stream<[IState, VNode[]]>): Stream<VNode> {
+    return listVNode$.map(([state, listItems]) => {
+        const { compare } = state as any as ISortState;
+        return div('.BubbleSort', [
+            div({
+                class: {
+                    'BubbleSort-listContainer': true,
+                },
+                style: {
+                    'grid-template-columns': `repeat(${listItems.length}, 1fr)`,
+                },
+            }, listItems),
+            div({
+                class: {
+                    'BubbleSort-compareAt': true,
+                },
+                style: {
+                    bottom: `${compare}%`,
+                    visibility: compare >= 0 ? 'visible' : 'hidden',
+                },
+            }),
+        ]);
+    });
+}
+
