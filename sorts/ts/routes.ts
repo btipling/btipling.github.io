@@ -1,22 +1,22 @@
-import BubbleSort from './BubbleSort';
-import InsertionSort from './InsertionSort';
+import bubbleSort from './BubbleSort';
+import insertionSort from './InsertionSort';
 import { IRoute } from './typedefs';
 
 const routes: IRoute[] = [
     {
-        component: BubbleSort,
         name: '',
         path: '/',
+        sort: bubbleSort,
     },
     {
-        component: BubbleSort,
         name: 'Bubble Sort',
         path: '/bubble',
+        sort: bubbleSort,
     },
     {
-        component: InsertionSort,
         name: 'Insertion Sort',
         path: '/insertion',
+        sort: insertionSort,
     },
 ];
 

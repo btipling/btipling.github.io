@@ -55,8 +55,13 @@ export interface ISorter {
     scale: number;
 }
 
+export interface ISort {
+    genSort(scale: number, numOps: number[]): ISorter;
+    genSortScales(scales: number[]): number[];
+}
+
 export interface IRoute {
-    component: (ISources) => ISinks;
+    sort: ISort;
     name: string;
     path: string;
 }

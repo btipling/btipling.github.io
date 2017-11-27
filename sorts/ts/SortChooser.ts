@@ -14,7 +14,7 @@ export default function SortChooser(route: IRoute, routes: IRoute[]): Component 
     return (): ISinks => {
         if (!route.name) {
             // If the current route is the default home page route, find its actual route information.
-            route = routes.find(({ name, component }) => !!name && route.component === component) as IRoute;
+            route = routes.find(({ name, sort }) => !!name && route.sort === sort) as IRoute;
         }
         const vdom$ = xs.of(div('.SortChooser', [
             h2('.SortChooser-current', route.name),

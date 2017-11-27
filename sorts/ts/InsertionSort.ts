@@ -1,8 +1,5 @@
-import isolate from '@cycle/isolate';
-import xs from 'xstream';
-import { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
-import { makeSortData, randArrayOfNumbers, sortComponentList, sortModel, sortView } from './sortUtils';
-import { ISinks, ISorter, ISortState, ISources } from './typedefs';
+import { makeSortData, randArrayOfNumbers } from './sortUtils';
+import { ISorter, ISortState } from './typedefs';
 
 export function* insertionSort(unsortedArray: number[], numOps: number[]): Iterator<ISortState> {
     const len = unsortedArray.length;
@@ -25,7 +22,7 @@ export function* insertionSort(unsortedArray: number[], numOps: number[]): Itera
     yield makeSortData(sortedArray, len, len, -1, -1, numOps);
     yield makeSortData(sortedArray, len, len, -1, -1, numOps);
 }
-function genInsertionSort(scale: number, numOps: number[]): ISorter {
+function genSort(scale: number, numOps: number[]): ISorter {
     return {
         scale,
         sorter: insertionSort(randArrayOfNumbers(scale), numOps),
@@ -51,20 +48,7 @@ function genSortScales(scales: number[]): number[] {
     return scales.map(insertionSortOpCounter);
 }
 
-export default function BubbleSort(sources: ISources): ISinks {
-    // Defining the list of items to be sorted.
-    const state$ = sources.onion.state$;
-    const time$ = sources.Time;
-    // state$.subscribe({ complete: console.log, error: console.log, next: console.log });
-    const List = sortComponentList();
-
-    const numOps = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4]);
-
-    const listSinks = isolate(List, 'list')(sources as any);
-    const reducer$ = sortModel(numOps, genInsertionSort, time$)(state$);
-    const vdom$ = sortView(xs.combine(state$, listSinks.dom));
-    return {
-        dom: vdom$,
-        onion: reducer$,
-    };
-}
+export default {
+    genSort,
+    genSortScales,
+};
