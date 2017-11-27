@@ -1,5 +1,6 @@
 import { DOMSource, VNode } from '@cycle/dom';
 import { HistoryInput } from '@cycle/history';
+import { TimeSource } from '@cycle/time';
 import { StateSource } from 'cycle-onionify';
 import { Location } from 'history';
 import { Stream } from 'xstream';
@@ -31,6 +32,7 @@ export interface ISources {
     dom: DOMSource;
     history: Stream<Location>;
     onion: StateSource<IState>;
+    Time: TimeSource;
 }
 
 export type Reducer = (prev?: IState) => IState | undefined;

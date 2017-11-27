@@ -2,6 +2,7 @@ import {
     div,
     VNode,
 } from '@cycle/dom';
+import { TimeSource } from '@cycle/time';
 import { makeCollection } from 'cycle-onionify';
 import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
@@ -18,28 +19,28 @@ export function scaleToN(scale: number): number {
     return Math.round((((b - a) * (scale - min)) / (max - min)) + a);
 }
 
-export function ticker(speedChooser: { speed: number }): Stream<number> {
+export function ticker(time$: TimeSource, speedChooser: { speed: number }): Stream<any> {
     const speedChoice = speedChooser ? speedChooser.speed : SPEED_4X;
     let speed;
+    if (speedChoice === SPEED_5X) {
+        return time$.animationFrames();
+    }
     switch (speedChoice) {
         case SPEED_1X:
             speed = 1000;
             break;
         case SPEED_2X:
-            speed = 500;
+            speed = 750;
             break;
         case SPEED_3X:
-            speed = 250;
-            break;
-        case SPEED_5X:
-            speed = 50;
+            speed = 500;
             break;
         case SPEED_4X:
         default:
-            speed = 100;
+            speed = 250;
             break;
     }
-    return xs.periodic(speed);
+    return time$.periodic(speed);
 }
 
 export function randN(): number {
@@ -66,14 +67,14 @@ export function makeSortData(
     };
 }
 
-export function sortModel(numOps: number[], genSort: (scale: number, numOps: number[]) => ISorter) {
+export function sortModel(numOps: number[], genSort: (scale: number, numOps: number[]) => ISorter, time$: TimeSource) {
     return (state$: Stream<any>): Stream<Reducer> => {
         const initialReducer$ = xs.of(() => {
             return makeSortData([], 0, 0, 0, 0, numOps);
         });
         let sorter: ISorter;
         const addOneReducer$ = state$
-            .map(({ list, speedChooser }) => ticker(speedChooser).mapTo({ list, speedChooser }))
+            .map(({ list, speedChooser }) => ticker(time$, speedChooser).mapTo({ list, speedChooser }))
             .flatten()
             .mapTo(({ speedChooser, graph }) => {
                 if (!sorter) {

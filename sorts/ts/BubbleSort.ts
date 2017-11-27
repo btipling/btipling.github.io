@@ -60,13 +60,14 @@ function genSortScales(scales: number[]): number[] {
 export default function BubbleSort(sources: ISources): ISinks {
     // Defining the list of items to be sorted.
     const state$ = sources.onion.state$;
+    const time$ = sources.Time;
     // state$.subscribe({ complete: console.log, error: console.log, next: console.log });
     const List = sortComponentList();
 
     const numOps = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4]);
 
     const listSinks = isolate(List, 'list')(sources as any);
-    const reducer$ = sortModel(numOps, genBubbleSort)(state$);
+    const reducer$ = sortModel(numOps, genBubbleSort, time$)(state$);
     const vdom$ = sortView(xs.combine(state$, listSinks.dom));
     return {
         dom: vdom$,
