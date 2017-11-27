@@ -9,6 +9,7 @@ import SortChooser from './SortChooser';
 import SpeedChooser from './SpeedChooser';
 import { Component, IRoute, ISinks, ISources, IState } from './typedefs';
 
+import '../sass/sortdemo.sass';
 import '../sass/sortview.sass';
 
 export interface IState {

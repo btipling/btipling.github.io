@@ -4,8 +4,6 @@ import { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
 import { makeSortData, randArrayOfNumbers, sortComponentList, sortModel, sortView } from './sortUtils';
 import { ISinks, ISorter, ISortState, ISources } from './typedefs';
 
-import '../sass/bubblesort.sass';
-
 export function* bubbleSort(unsortedArray: number[], numOps: number[]): Iterator<ISortState> {
     const len = unsortedArray.length;
     const sortedArray = ([] as number[]).concat(unsortedArray);
