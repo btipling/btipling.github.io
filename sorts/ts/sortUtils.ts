@@ -85,5 +85,5 @@ export function sortModel(numOps: number[], genSort: (scale: number, numOps: num
                 return Object.assign(value.value, { speedChooser, graph });
             });
         return xs.merge(initialReducer$, addOneReducer$) as any as Stream<Reducer>;
-    }
+    };
 }

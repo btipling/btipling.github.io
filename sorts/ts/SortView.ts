@@ -47,5 +47,5 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
             dom: vdom$,
             onion: reducer$,
         };
-    }
+    };
 }

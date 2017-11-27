@@ -22,7 +22,7 @@ export function intent(domSource: DOMSource): Stream<[IGraphState, IGraphState]>
     const gen = f => xs.merge.apply(null, map(f, range(SCALE_1, SCALE_4 + 1)));
 
     const select = (scale, event, fn) => domSource.select(`.${cn}${scale}`).events(event).map(fn);
-    const click = scale => select(scale, 'click', () => ({ scale })).startWith({ scale: SCALE_1 }) as any as Stream<IGraphState>;;
+    const click = scale => select(scale, 'click', () => ({ scale })).startWith({ scale: SCALE_1 }) as any as Stream<IGraphState>;
     const over = scale => select(scale, 'mouseover', () => ({ scale }));
     const out = scale => select(scale, 'mouseout', () => ({ scale: 0 }));
     const overout = xs.merge(gen(over), gen(out)).startWith({ scale: 0 }) as any as Stream<IGraphState>;
