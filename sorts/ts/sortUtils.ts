@@ -5,8 +5,8 @@ import {
 import { makeCollection } from 'cycle-onionify';
 import { times } from 'ramda';
 import xs, { Stream } from 'xstream';
-import BubbleSortItem from './BubbleSortItem';
 import { SCALE_1, SCALE_4 } from './PerformanceGraph';
+import SortItem from './SortItem';
 import { defaultSpeed, SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
 import { Component, ISorter, ISortState, IState, Reducer } from './typedefs';
 
@@ -101,7 +101,7 @@ export function sortComponentList(): Component {
                 .map((itemVNodes: VNode[]) => itemVNodes),
             onion: instances.pickMerge('onion'),
         }),
-        item: BubbleSortItem,
+        item: SortItem,
         itemKey: (_: any, index: number) => index.toString(),
         itemScope: (key: string) => key,
     });
