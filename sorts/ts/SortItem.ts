@@ -17,6 +17,8 @@ export default function Item(sources: ISources): ISinks {
                 'SortItem': true,
                 'SortItem-focused': sortData.focused.indexOf(sortData.index) !== -1,
                 'SortItem-highlighted': sortData.highlighted.indexOf(sortData.index) !== -1,
+                'SortItem-section': sortData.sections.find((subsection: number[]) => subsection.find((index: number) => index === sortData.index) !== undefined) !== undefined,
+                'SortItem-selected': sortData.selected.indexOf(sortData.index) !== -1,
             },
             style: {
                 height: `${sortData.value}%`,

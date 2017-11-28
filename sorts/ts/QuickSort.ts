@@ -2,25 +2,29 @@ import { randArrayOfNumbers } from './sortUtils';
 import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
 
 export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
-
+    console.warn('quicksorting starts');
     function* quickSorter(arr: number[], low: number, high: number): Iterator<ISortState> {
 
         let p = -1;
 
         function* partition(partionedArray: number[], lo: number, hi: number): Iterator<ISortState> {
-            const pivot = partionedArray[low];
+            let pivotIndex = lo;
+            const pivot = partionedArray[lo];
+            const subsection = [partionedArray.map((_, index) => index).filter(index => index < lo || index > hi)];
             let i = lo - 1;
             let j = hi + 1;
             do {
                 do {
                     i += 1;
-                    yield makeSortData(partionedArray, [low], [i], low);
+                    yield makeSortData(partionedArray, [pivotIndex], [i, j], pivotIndex, [], subsection);
                 } while (partionedArray[i] < pivot);
+                yield makeSortData(partionedArray, [pivotIndex], [j], pivotIndex, [i], subsection);
 
                 do {
                     j -= 1;
-                    yield makeSortData(partionedArray, [low], [j], low);
+                    yield makeSortData(partionedArray, [pivotIndex], [j], pivotIndex, [i], subsection);
                 } while (partionedArray[j] > pivot);
+                yield makeSortData(partionedArray, [pivotIndex], [], pivotIndex, [i, j], subsection);
 
                 if (i >= j) {
                     p = j;
@@ -28,10 +32,14 @@ export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 }
 
                 const t = partionedArray[j];
+                yield makeSortData(partionedArray, [pivotIndex, i, j], [], pivotIndex, [], subsection);
                 partionedArray[j] = partionedArray[i];
                 partionedArray[i] = t;
-
-                yield makeSortData(partionedArray, [low], [j], low);
+                if (i === pivotIndex) {
+                    pivotIndex = j;
+                }
+                yield makeSortData(partionedArray, [pivotIndex, i, j], [], pivotIndex, [], subsection);
+                yield makeSortData(partionedArray, [pivotIndex], [], pivotIndex, [i, j], subsection);
             } while (true); // tslint:disable-line no-constant-condition
         }
 

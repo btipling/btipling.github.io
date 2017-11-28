@@ -19,11 +19,11 @@ export function randArrayOfNumbers(scale: number): number[] {
 }
 
 export function makeSortData(numOps: number[]): MakeSortDataFunc {
-    return (arrayData: number[], highlighted: number[], focused: number[], compare: number, sections: number[][] = []): ISortState => {
+    return (arrayData: number[], highlighted: number[], focused: number[], compare: number, selected: number[] = [], sections: number[][] = []): ISortState => {
         return {
             compare: arrayData[compare],
             graph: { scale: SCALE_1 },
-            list: arrayData.map((value, index) => ({ compare, index, value, highlighted, focused, sections })),
+            list: arrayData.map((value, index) => ({ compare, index, value, highlighted, focused, selected, sections })),
             numOps,
             speedChooser: defaultSpeed(),
         };
