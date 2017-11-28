@@ -141,7 +141,7 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
         const listSinks = isolate(List, 'list')(sources as any);
         const demo$ = demoView(xs.combine(state$, listSinks.dom));
 
-        const sortReducer$ = model(numOps, genSort, time$)(state$)
+        const sortReducer$ = model(numOps, genSort, time$)(state$);
         const speedReducer$ = speedSinks.onion as any as Stream<Reducer>;
         const graphReducer$ = graphSinks.onion as any as Stream<Reducer>;
 
