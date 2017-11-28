@@ -31,6 +31,7 @@ export function* bubbleSort(unsortedArray: number[], makeSortData: MakeSortDataF
     yield makeSortData(sortedArray, len, len, -1);
     yield makeSortData(sortedArray, len, len, -1);
 }
+
 function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
     return {
         scale,
