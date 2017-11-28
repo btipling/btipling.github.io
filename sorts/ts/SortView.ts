@@ -11,7 +11,7 @@ import SortChooser from './SortChooser';
 import SortItem from './SortItem';
 import { makeSortData } from './sortUtils';
 import SpeedChooser, { SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
-import { Component, IRoute, ISinks, ISorter, ISortState, ISources, IState } from './typedefs';
+import { Component, IRoute, ISinks, ISorter, ISortState, ISources, IState, MakeSortDataFunc } from './typedefs';
 
 import '../sass/sortdemo.sass';
 import '../sass/sortview.sass';
@@ -58,10 +58,11 @@ export function sortComponentList(): Component {
     });
 }
 
-export function model(numOps: number[], genSort: (scale: number, numOps: number[]) => ISorter, time$: TimeSource) {
+export function model(numOps: number[], genSort: (scale: number, makeSortData: MakeSortDataFunc) => ISorter, time$: TimeSource) {
     return (state$: Stream<any>): Stream<Reducer> => {
+        const mf: MakeSortDataFunc = makeSortData(numOps);
         const initialReducer$ = xs.of(() => {
-            return makeSortData([], 0, 0, 0, 0, numOps);
+            return mf([], 0, 0, 0);
         });
         let sorter: ISorter;
         const addOneReducer$ = state$
@@ -69,14 +70,14 @@ export function model(numOps: number[], genSort: (scale: number, numOps: number[
             .flatten()
             .mapTo(({ speedChooser, graph }) => {
                 if (!sorter) {
-                    sorter = genSort(graph.scale, numOps);
+                    sorter = genSort(graph.scale, mf);
                 }
                 if (sorter.scale !== graph.scale) {
-                    sorter = genSort(graph.scale, numOps);
+                    sorter = genSort(graph.scale, mf);
                 }
                 let value = sorter.sorter.next();
                 if (value.done) {
-                    sorter = genSort(graph.scale, numOps);
+                    sorter = genSort(graph.scale, mf);
                     value = sorter.sorter.next();
                 }
                 graph.numOps = numOps;

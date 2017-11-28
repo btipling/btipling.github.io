@@ -1,31 +1,31 @@
-import { makeSortData, randArrayOfNumbers } from './sortUtils';
-import { ISorter, ISortState } from './typedefs';
+import { randArrayOfNumbers } from './sortUtils';
+import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
 
-export function* insertionSort(unsortedArray: number[], numOps: number[]): Iterator<ISortState> {
+export function* insertionSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
     const len = unsortedArray.length;
     const sortedArray = ([] as number[]).concat(unsortedArray);
     let a = 1;
     while (a < len) {
         let b = a;
-        yield makeSortData(sortedArray, b, b - 1, sortedArray[b], b, numOps);
+        yield makeSortData(sortedArray, b, b - 1, b);
         while (b > 0 && sortedArray[b - 1] > sortedArray[b]) {
             const t = sortedArray[b];
             sortedArray[b] = sortedArray[b - 1];
             sortedArray[b - 1] = t;
-            yield makeSortData(sortedArray, b - 1, b, sortedArray[b - 1], b - 1, numOps);
+            yield makeSortData(sortedArray, b - 1, b, b - 1);
             b -= 1;
-            yield makeSortData(sortedArray, b, b - 1, sortedArray[b], b, numOps);
+            yield makeSortData(sortedArray, b, b - 1, b);
         }
         a += 1;
     }
     // Twice for 2 frames.
-    yield makeSortData(sortedArray, len, len, -1, -1, numOps);
-    yield makeSortData(sortedArray, len, len, -1, -1, numOps);
+    yield makeSortData(sortedArray, len, len, -1);
+    yield makeSortData(sortedArray, len, len, -1);
 }
-function genSort(scale: number, numOps: number[]): ISorter {
+function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
     return {
         scale,
-        sorter: insertionSort(randArrayOfNumbers(scale), numOps),
+        sorter: insertionSort(randArrayOfNumbers(scale), makeSortData),
     };
 }
 

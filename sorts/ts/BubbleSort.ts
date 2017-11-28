@@ -1,27 +1,26 @@
-import { makeSortData, randArrayOfNumbers } from './sortUtils';
-import { ISorter, ISortState } from './typedefs';
+import { randArrayOfNumbers } from './sortUtils';
+import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
 
-export function* bubbleSort(unsortedArray: number[], numOps: number[]): Iterator<ISortState> {
+export function* bubbleSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
     const len = unsortedArray.length;
     const sortedArray = ([] as number[]).concat(unsortedArray);
     let a = 0;
     let b = 0;
     for (let i = len; i > 0; i--) {
         let swapped = false;
-        yield makeSortData(sortedArray, a, b, sortedArray[b], b, numOps);
         for (let j = 0; j < i - 1; j++) {
             a = j;
             b = j + 1;
             const itemA = sortedArray[a];
             const itemB = sortedArray[b];
-            yield makeSortData(sortedArray, a, b, sortedArray[a], a, numOps);
+            yield makeSortData(sortedArray, a, b, a);
             if (itemB < itemA) {
                 sortedArray[a] = itemB;
                 sortedArray[b] = itemA;
-                yield makeSortData(sortedArray, b, a, sortedArray[b], b, numOps);
+                yield makeSortData(sortedArray, b, a, b);
                 swapped = true;
             } else {
-                yield makeSortData(sortedArray, b, -1, sortedArray[b], b, numOps);
+                yield makeSortData(sortedArray, b, -1, b);
             }
         }
         if (!swapped) {
@@ -29,13 +28,13 @@ export function* bubbleSort(unsortedArray: number[], numOps: number[]): Iterator
         }
     }
     // Twice for 2 frames.
-    yield makeSortData(sortedArray, len, len, -1, -1, numOps);
-    yield makeSortData(sortedArray, len, len, -1, -1, numOps);
+    yield makeSortData(sortedArray, len, len, -1);
+    yield makeSortData(sortedArray, len, len, -1);
 }
-function genSort(scale: number, numOps: number[]): ISorter {
+function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
     return {
         scale,
-        sorter: bubbleSort(randArrayOfNumbers(scale), numOps),
+        sorter: bubbleSort(randArrayOfNumbers(scale), makeSortData),
     };
 }
 

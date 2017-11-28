@@ -17,8 +17,9 @@ export interface ISortDataItem {
     compare: number;
     compareAIndex: number;
     compareBIndex: number;
-    highlighted: number;
 }
+
+export type MakeSortDataFunc = (arrayData: number[], compareAIndex: number, compareBIndex: number, compare: number) => ISortState;
 
 export interface ISortState {
     compare: number;
@@ -56,7 +57,7 @@ export interface ISorter {
 }
 
 export interface ISort {
-    genSort(scale: number, numOps: number[]): ISorter;
+    genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter;
     genSortScales(scales: number[]): number[];
 }
 

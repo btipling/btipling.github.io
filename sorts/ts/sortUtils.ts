@@ -1,7 +1,7 @@
 import { times } from 'ramda';
 import { SCALE_1, SCALE_4 } from './PerformanceGraph';
 import { defaultSpeed } from './SpeedChooser';
-import { ISortState } from './typedefs';
+import { ISortState, MakeSortDataFunc } from './typedefs';
 
 export function scaleToN(scale: number): number {
     const a = 10;
@@ -18,18 +18,14 @@ export function randArrayOfNumbers(scale: number): number[] {
     return times(() => randN(), scaleToN(scale));
 }
 
-export function makeSortData(
-    arrayData: number[],
-    compareAIndex: number,
-    compareBIndex: number,
-    compare: number,
-    highlighted: number,
-    numOps: number[]): ISortState {
-    return {
-        compare,
-        graph: { scale: SCALE_1 },
-        list: arrayData.map((value, index) => ({ compare, highlighted, index, value, compareAIndex, compareBIndex })),
-        numOps,
-        speedChooser: defaultSpeed(),
+export function makeSortData(numOps: number[]): MakeSortDataFunc {
+    return (arrayData: number[], compareAIndex: number, compareBIndex: number, compare: number): ISortState => {
+        return {
+            compare: arrayData[compare],
+            graph: { scale: SCALE_1 },
+            list: arrayData.map((value, index) => ({ compare, index, value, compareAIndex, compareBIndex })),
+            numOps,
+            speedChooser: defaultSpeed(),
+        };
     };
 }
