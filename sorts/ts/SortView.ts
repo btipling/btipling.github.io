@@ -62,7 +62,7 @@ export function model(numOps: number[], genSort: (scale: number, makeSortData: M
     return (state$: Stream<any>): Stream<Reducer> => {
         const mf: MakeSortDataFunc = makeSortData(numOps);
         const initialReducer$ = xs.of(() => {
-            return mf([], 0, 0, 0);
+            return mf([], [], [], 0);
         });
         let sorter: ISorter;
         const addOneReducer$ = state$

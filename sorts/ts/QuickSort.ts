@@ -14,15 +14,16 @@ export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFu
             do {
                 do {
                     i += 1;
+                    yield makeSortData(partionedArray, [low], [i], low);
                 } while (partionedArray[i] < pivot);
 
                 do {
                     j -= 1;
+                    yield makeSortData(partionedArray, [low], [j], low);
                 } while (partionedArray[j] > pivot);
 
                 if (i >= j) {
                     p = j;
-                    yield makeSortData(partionedArray, i, j, i);
                     return;
                 }
 
@@ -30,7 +31,7 @@ export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 partionedArray[j] = partionedArray[i];
                 partionedArray[i] = t;
 
-                yield makeSortData(partionedArray, i, j, i);
+                yield makeSortData(partionedArray, [low], [j], low);
             } while (true); // tslint:disable-line no-constant-condition
         }
 
@@ -46,8 +47,8 @@ export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFu
     yield* quickSorter(sortedArray, 0, sortedArray.length - 1) as any;
 
     // Twice for 2 frames.
-    yield makeSortData(sortedArray, -1, -1, -1);
-    yield makeSortData(sortedArray, -1, -1, -1);
+    yield makeSortData(sortedArray, [], [], -1);
+    yield makeSortData(sortedArray, [], [], -1);
 }
 
 function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {

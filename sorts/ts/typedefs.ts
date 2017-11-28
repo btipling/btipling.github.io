@@ -15,11 +15,12 @@ export interface ISortDataItem {
     value: number;
     index: number;
     compare: number;
-    compareAIndex: number;
-    compareBIndex: number;
+    highlighted: number[];
+    focused: number[];
+    sections: number[][];
 }
 
-export type MakeSortDataFunc = (arrayData: number[], compareAIndex: number, compareBIndex: number, compare: number) => ISortState;
+export type MakeSortDataFunc = (arrayData: number[], highlighted: number[], focused: number[], compare: number, sections?: number[][]) => ISortState;
 
 export interface ISortState {
     compare: number;

@@ -15,8 +15,8 @@ export default function Item(sources: ISources): ISinks {
         return div({
             class: {
                 'SortItem': true,
-                'SortItem-compareA': sortData.compareAIndex === sortData.index,
-                'SortItem-compareB': sortData.compareBIndex === sortData.index,
+                'SortItem-focused': sortData.focused.indexOf(sortData.index) !== -1,
+                'SortItem-highlighted': sortData.highlighted.indexOf(sortData.index) !== -1,
             },
             style: {
                 height: `${sortData.value}%`,
