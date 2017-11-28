@@ -17,12 +17,16 @@ export const SCALE_2 = 2;
 export const SCALE_3 = 3;
 export const SCALE_4 = 4;
 
+export function defaultScale(): { scale: number } {
+    return { scale: SCALE_2 };
+}
+
 export function intent(domSource: DOMSource): Stream<[IGraphState, IGraphState]> {
     const cn = 'PerformanceGraph-section';
     const gen = f => xs.merge.apply(null, map(f, range(SCALE_1, SCALE_4 + 1)));
 
     const select = (scale, event, fn) => domSource.select(`.${cn}${scale}`).events(event).map(fn);
-    const click = scale => select(scale, 'click', () => ({ scale })).startWith({ scale: SCALE_1 }) as any as Stream<IGraphState>;
+    const click = scale => select(scale, 'click', () => ({ scale })).startWith(defaultScale()) as any as Stream<IGraphState>;
     const over = scale => select(scale, 'mouseover', () => ({ scale }));
     const out = scale => select(scale, 'mouseout', () => ({ scale: 0 }));
     const overout = xs.merge(gen(over), gen(out)).startWith({ scale: 0 }) as any as Stream<IGraphState>;
@@ -32,7 +36,7 @@ export function intent(domSource: DOMSource): Stream<[IGraphState, IGraphState]>
 
 export function model(actions$: Stream<[IGraphState, IGraphState]>, state: Stream<IGraphState>) {
     const initReducer$ = xs.of(function initReducer(_: IGraphState): IGraphState {
-        return { scale: SCALE_1 };
+        return defaultScale();
     });
 
     const addReducer$ = xs.merge(actions$.map(action => action[0]), state)
