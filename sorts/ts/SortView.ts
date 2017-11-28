@@ -9,7 +9,7 @@ import xs, { Stream } from 'xstream';
 import PerformanceGraph, { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
 import SortChooser from './SortChooser';
 import SortItem from './SortItem';
-import { makeSortData } from './sortUtils';
+import { listExtraction, makeSortData } from './sortUtils';
 import SpeedChooser, { SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
 import { Component, IRoute, ISinks, ISorter, ISortState, ISources, IState, MakeSortDataFunc } from './typedefs';
 
@@ -101,7 +101,7 @@ function view(listVNode$: Stream<[VNode, VNode, VNode, VNode]>): Stream<VNode> {
     });
 }
 
-function demoView(listVNode$: Stream<[IState, VNode[]]>): Stream<VNode> {
+function demoView(listVNode$: Stream<[IState, VNode[][]]>): Stream<VNode> {
     return listVNode$.map(([state, listItems]) => {
         const { compare } = state as any as ISortState;
         return div('.SortDemo', [
@@ -110,9 +110,9 @@ function demoView(listVNode$: Stream<[IState, VNode[]]>): Stream<VNode> {
                     'SortDemo-listContainer': true,
                 },
                 style: {
-                    'grid-template-columns': `repeat(${listItems.length}, 1fr)`,
+                    'grid-template-columns': `repeat(${listItems[0].length}, 1fr)`,
                 },
-            }, listItems),
+            }, listItems[0]),
             div({
                 class: {
                     'SortDemo-compareAt': true,
@@ -138,8 +138,8 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
         const sortChooser = SortChooser(route, routes)(sources as any);
 
         const List = sortComponentList();
-        const listSinks = isolate(List, 'list')(sources as any);
-        const demo$ = demoView(xs.combine(state$, listSinks.dom));
+        const lists = [isolate(List, { onion: listExtraction(0) })(sources as any)];
+        const demo$ = demoView(xs.combine(state$, xs.combine.apply(null, lists.map(({ dom }) => dom))));
 
         const sortReducer$ = model(numOps, genSort, time$)(state$);
         const speedReducer$ = speedSinks.onion as any as Stream<Reducer>;

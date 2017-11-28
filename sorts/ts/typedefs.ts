@@ -25,7 +25,7 @@ export type MakeSortDataFunc = (arrayData: number[], highlighted: number[], focu
 
 export interface ISortState {
     compare: number;
-    list: ISortDataItem[];
+    lists: ISortDataItem[][];
     numOps: number[];
     speedChooser: { speed: number };
 }
