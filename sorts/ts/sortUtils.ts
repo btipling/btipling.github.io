@@ -1,6 +1,5 @@
 import { times } from 'ramda';
 import { SCALE_1, SCALE_4 } from './PerformanceGraph';
-import { defaultSpeed } from './SpeedChooser';
 import { ISortState, MakeSortDataFunc } from './typedefs';
 
 export function scaleToN(scale: number): number {
@@ -24,7 +23,6 @@ export function makeSortData(numOps: number[]): MakeSortDataFunc {
             compares: [arrayData[compare]],
             lists: [arrayData.map((value, index) => ({ compare, index, value, highlighted, focused, selected, sections }))],
             numOps,
-            speedChooser: defaultSpeed(),
         };
     };
 }

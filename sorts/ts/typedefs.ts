@@ -27,7 +27,6 @@ export interface ISortState {
     compares: number[];
     lists: ISortDataItem[][];
     numOps: number[];
-    speedChooser: { speed: number };
 }
 
 export interface ISources {
