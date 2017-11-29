@@ -2,7 +2,6 @@ import { randArrayOfNumbers } from './sortUtils';
 import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
 
 export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
-    console.warn('quicksorting starts');
     function* quickSorter(arr: number[], low: number, high: number): Iterator<ISortState> {
 
         let p = -1;
