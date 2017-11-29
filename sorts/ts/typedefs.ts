@@ -21,7 +21,7 @@ export interface ISortDataItem {
     sections: number[][];
 }
 
-export type MakeSortDataFunc = (arrayData: number[], highlighted: number[], focused: number[], compare: number, selected?: number[], sections?: number[][]) => ISortState;
+export type MakeSortDataFunc = (arrayData: number[][], highlighted: number[], focused: number[], compare: number, selected?: number[], sections?: number[][]) => ISortState;
 
 export interface ISortState {
     compares: number[];

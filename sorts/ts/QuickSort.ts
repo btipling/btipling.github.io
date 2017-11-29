@@ -15,15 +15,15 @@ export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFu
             do {
                 do {
                     i += 1;
-                    yield makeSortData(partionedArray, [pivotIndex], [i, j], pivotIndex, [], subsection);
+                    yield makeSortData([partionedArray], [pivotIndex], [i, j], pivotIndex, [], subsection);
                 } while (partionedArray[i] < pivot);
-                yield makeSortData(partionedArray, [pivotIndex], [j], pivotIndex, [i], subsection);
+                yield makeSortData([partionedArray], [pivotIndex], [j], pivotIndex, [i], subsection);
 
                 do {
                     j -= 1;
-                    yield makeSortData(partionedArray, [pivotIndex], [j], pivotIndex, [i], subsection);
+                    yield makeSortData([partionedArray], [pivotIndex], [j], pivotIndex, [i], subsection);
                 } while (partionedArray[j] > pivot);
-                yield makeSortData(partionedArray, [pivotIndex], [], pivotIndex, [i, j], subsection);
+                yield makeSortData([partionedArray], [pivotIndex], [], pivotIndex, [i, j], subsection);
 
                 if (i >= j) {
                     p = j;
@@ -31,14 +31,14 @@ export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 }
 
                 const t = partionedArray[j];
-                yield makeSortData(partionedArray, [pivotIndex, i, j], [], pivotIndex, [], subsection);
+                yield makeSortData([partionedArray], [pivotIndex, i, j], [], pivotIndex, [], subsection);
                 partionedArray[j] = partionedArray[i];
                 partionedArray[i] = t;
                 if (i === pivotIndex) {
                     pivotIndex = j;
                 }
-                yield makeSortData(partionedArray, [pivotIndex, i, j], [], pivotIndex, [], subsection);
-                yield makeSortData(partionedArray, [pivotIndex], [], pivotIndex, [i, j], subsection);
+                yield makeSortData([partionedArray], [pivotIndex, i, j], [], pivotIndex, [], subsection);
+                yield makeSortData([partionedArray], [pivotIndex], [], pivotIndex, [i, j], subsection);
             } while (true); // tslint:disable-line no-constant-condition
         }
 
@@ -54,8 +54,8 @@ export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFu
     yield* quickSorter(sortedArray, 0, sortedArray.length - 1) as any;
 
     // Twice for 2 frames.
-    yield makeSortData(sortedArray, [], [], -1);
-    yield makeSortData(sortedArray, [], [], -1);
+    yield makeSortData([sortedArray], [], [], -1);
+    yield makeSortData([sortedArray], [], [], -1);
 }
 
 function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {

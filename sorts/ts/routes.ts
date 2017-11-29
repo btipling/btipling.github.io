@@ -1,5 +1,6 @@
 import bubbleSort from './BubbleSort';
 import insertionSort from './InsertionSort';
+import mergeSort from './MergeSort';
 import quickSort from './QuickSort';
 import { IRoute } from './typedefs';
 
@@ -23,6 +24,11 @@ const routes: IRoute[] = [
         name: 'Quick Sort',
         path: '/quick',
         sort: quickSort,
+    },
+    {
+        name: 'Merge Sort',
+        path: '/merge',
+        sort: mergeSort,
     },
 ];
 

@@ -18,10 +18,17 @@ export function randArrayOfNumbers(scale: number): number[] {
 }
 
 export function makeSortData(numOps: number[]): MakeSortDataFunc {
-    return (arrayData: number[], highlighted: number[], focused: number[], compare: number, selected: number[] = [], sections: number[][] = []): ISortState => {
+    return (arrayData: number[][], highlighted: number[], focused: number[], compare: number, selected: number[] = [], sections: number[][] = []): ISortState => {
+        const lists = [] as any;
+        if (arrayData.length) {
+            lists[0] = arrayData[0].map((value, index) => ({ compare, index, value, highlighted, focused, selected, sections }));
+            if (arrayData.length > 1) {
+                lists[1] = arrayData[1].map((value, index) => ({ compare: 0, index, value, highlighted: [], focused: [], selected: [], sections: [] }));
+            }
+        }
         return {
-            compares: [arrayData[compare]],
-            lists: [arrayData.map((value, index) => ({ compare, index, value, highlighted, focused, selected, sections }))],
+            compares: [arrayData.length ? arrayData[0][compare] : -1],
+            lists,
             numOps,
         };
     };

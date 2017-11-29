@@ -141,7 +141,10 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
         const sortChooser = SortChooser(route, routes)(sources as any);
 
         const List = sortComponentList();
-        const lists = [isolate(List, { onion: listExtraction(0) })(sources as any)];
+        const lists = [
+            isolate(List, { onion: listExtraction(0) })(sources as any),
+            isolate(List, { onion: listExtraction(1) })(sources as any),
+        ];
         const demo$ = demoView(xs.combine(state$, xs.combine(...lists.map(({ dom }) => dom))));
 
         const sortReducer$ = model(numOps, genSort, time$)(state$);
