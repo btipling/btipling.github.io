@@ -103,7 +103,7 @@ function view(listVNode$: Stream<[VNode, VNode, VNode, VNode]>): Stream<VNode> {
 
 function demoView(listVNode$: Stream<[IState, VNode[][]]>): Stream<VNode> {
     return listVNode$.map(([state, listItems]) => {
-        const { compare } = state as any as ISortState;
+        const { compares } = state as any as ISortState;
         return div('.SortDemo', [
             div({
                 class: {
@@ -111,17 +111,20 @@ function demoView(listVNode$: Stream<[IState, VNode[][]]>): Stream<VNode> {
                 },
                 style: {
                     'grid-template-columns': `repeat(${listItems[0].length}, 1fr)`,
+                    'grid-template-rows': `repeat(${listItems.length}, 1fr)`,
                 },
-            }, listItems[0]),
-            div({
-                class: {
-                    'SortDemo-compareAt': true,
-                },
-                style: {
-                    bottom: `${compare}%`,
-                    visibility: compare >= 0 ? 'visible' : 'hidden',
-                },
-            }),
+            }, ([] as VNode[])
+                .concat(...listItems)
+                .concat(...compares.map(compare => div({
+                    class: {
+                        'SortDemo-compareAt': true,
+                    },
+                    style: {
+                        bottom: `${compare}%`,
+                        visibility: compare >= 0 ? 'visible' : 'hidden',
+                    },
+                }))),
+            ),
         ]);
     });
 }
