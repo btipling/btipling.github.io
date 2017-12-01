@@ -46,6 +46,11 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
                 makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
             );
+
+            function pad(a, b) {
+                return b.map(_ => 0).concat(a);
+            }
+
             const cameFromLeft = ([] as number[]);
             const cameFromRight = ([] as number[]);
             while (leftR.length && rightR.length) {
@@ -61,8 +66,8 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 i += 1;
                 yield makeSortData(
                     makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
-                    makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
-                    makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
+                    makeSortDemoData(fix(pad(leftR, cameFromLeft)), -1, pad(leftR, cameFromLeft).map((_, ii) => ii), []),
+                    makeSortDemoData(fix(pad(rightR, cameFromRight)), -1, [], pad(rightR, cameFromRight).map((_, ii) => ii)),
                 );
             }
 
@@ -74,8 +79,8 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 i += 1;
                 yield makeSortData(
                     makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
-                    makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
-                    makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
+                    makeSortDemoData(fix(pad(leftR, cameFromLeft)), -1, pad(leftR, cameFromLeft).map((_, ii) => ii), []),
+                    makeSortDemoData(fix(pad(rightR, cameFromRight)), -1, [], pad(rightR, cameFromRight).map((_, ii) => ii)),
                 );
             }
 
@@ -87,8 +92,8 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 i += 1;
                 yield makeSortData(
                     makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
-                    makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
-                    makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
+                    makeSortDemoData(fix(pad(leftR, cameFromLeft)), -1, pad(leftR, cameFromLeft).map((_, ii) => ii), []),
+                    makeSortDemoData(fix(pad(rightR, cameFromRight)), -1, [], pad(rightR, cameFromRight).map((_, ii) => ii)),
                 );
             }
         }
