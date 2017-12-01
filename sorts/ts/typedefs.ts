@@ -6,6 +6,7 @@ import { Location } from 'history';
 import { Stream } from 'xstream';
 
 export interface IState {
+    lists: object[];
     graph: object;
     sort: object;
     speedChooser: object;
@@ -21,11 +22,15 @@ export interface ISortDataItem {
     sections: number[][];
 }
 
-export type MakeSortDataFunc = (arrayData: number[][], highlighted: number[], focused: number[], compare: number, selected?: number[], sections?: number[][]) => ISortState;
+export type MakeSortDataFunc = (...sortDemoData: ISortDemo[]) => ISortState;
+
+export interface ISortDemo {
+    compare: number;
+    list: ISortDataItem[];
+}
 
 export interface ISortState {
-    compares: number[];
-    lists: ISortDataItem[][];
+    lists: ISortDemo[];
     numOps: number[];
 }
 

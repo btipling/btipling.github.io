@@ -1,7 +1,8 @@
+// import { makeSortDemoData, randArrayOfNumbers } from './sortUtils';
 import { randArrayOfNumbers } from './sortUtils';
 import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
 
-export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
+export function* mergeSort(unsortedArray: number[], _: MakeSortDataFunc): Iterator<ISortState> {
 
     function* mergeSorter(arr: number[], trackStart: number, trackEnd: number): Iterator<ISortState> {
         if (arr.length <= 1) {
@@ -10,25 +11,26 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
 
         const low = 0;
         const high = arr.length - 1;
-        const subsection = [sortedArray.map((_, index) => index).filter(index => index < trackStart || index > trackStart + (arr.length - 1))];
+        // const subsection = [sortedArray.map((_, index) => index).filter(index => index < trackStart || index > trackStart + (arr.length - 1))];
 
-        function* yieldSortProgress(highlighted: number[], focused: number[], highlightSection: number[]): Iterator<ISortState> {
-            for (let i = 0; i < arr.length; i++) {
-                sortedArray[i + trackStart] = arr[i];
-            }
-            yield makeSortData([sortedArray, arr], highlighted, focused, -1, [], subsection.concat([highlightSection]));
-        }
+        // function* yieldSortProgress(highlighted: number[], focused: number[], highlightSection: number[], lists: number[][]): Iterator<ISortState> {
+        //     for (let i = 0; i < arr.length; i++) {
+        //         sortedArray[i + trackStart] = arr[i];
+        //     }
+        //     yield makeSortData(lists, highlighted, focused, -1, [], subsection.concat([highlightSection]));
+        // }
 
-        yield* yieldSortProgress([], [], []) as any;
+        // yield* yieldSortProgress([], [], [], [sortedArray, arr]) as any;
 
         const p = Math.floor(high / 2);
         const left = arr.slice(low, p + 1);
-        const right = arr.slice(p + 1, high + 1);
+        // yield* yieldSortProgress([], [], [], [sortedArray.map((n, si) => si > trackStart && si <= trackStart + p - 1 ? 0 : n), left]) as any;
 
+        const right = arr.slice(p + 1, high + 1);
+        // yield* yieldSortProgress([], [], [], [sortedArray.map((n, si) => si > trackStart && si <= trackStart + arr.length - 1 ? 0 : n), left, right]) as any;
         yield* mergeSorter(left, trackStart, trackEnd - p) as any;
         yield* mergeSorter(right, p, trackEnd) as any;
         yield* merge(arr, left, right) as any;
-
 
         if (arr === unsortedArray) {
             // No need to update the array, it's already updated.
@@ -37,38 +39,35 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
 
         function* merge(arrayToMergeInto: number[], leftR: number[], rightR: number[]): Iterator<ISortState> {
             let i = 0;
-            let l = 0;
-            let r = 0;
-            while (l < leftR.length && r < rightR.length) {
-                if (leftR[l] <= right[r]) {
-                    arrayToMergeInto[i] = leftR[l];
-                    l += 1;
+            // const purge = (n, si) => si > trackStart + i && si <= trackStart + arr.length - 1 ? 0 : n;
+            while (leftR.length && rightR.length) {
+                if (leftR[0] <= right[0]) {
+                    arrayToMergeInto[i] = leftR.shift() as number;
                 } else {
-                    arrayToMergeInto[i] = rightR[r];
-                    r += 1;
+                    arrayToMergeInto[i] = rightR.shift() as number;
                 }
+                // yield* yieldSortProgress([], [], [], [sortedArray.map(purge), leftR, rightR]) as any;
                 i += 1;
-                yield* yieldSortProgress([r + trackStart], [l + r + trackStart], rightR.map((_, index) => index + l + trackStart)) as any;
             }
 
-            for (; l < leftR.length; l++ , i++) {
-                arrayToMergeInto[i] = leftR[l];
-                yield* yieldSortProgress([i + trackStart], [], rightR.map((_, index) => index + l + trackStart)) as any;
+            for (; leftR.length; i++) {
+                arrayToMergeInto[i] = leftR.shift() as number;
+                // yield* yieldSortProgress([], [], [], [sortedArray.map(purge), leftR, rightR]) as any;
             }
 
-            for (; r < rightR.length; r++ , i++) {
-                arrayToMergeInto[i] = rightR[r];
-                yield* yieldSortProgress([i + trackStart], [], rightR.map((_, index) => index + l + trackStart)) as any;
+            for (; rightR.length; i++) {
+                arrayToMergeInto[i] = rightR.shift() as number;
+                // yield* yieldSortProgress([], [], [], [sortedArray.map(purge), leftR, rightR]) as any;
             }
         }
     }
 
     const sortedArray = ([] as number[]).concat(unsortedArray);
-    yield makeSortData([sortedArray], [], [], -1);
+    // yield makeSortData([sortedArray], [], [], -1);
     yield* mergeSorter(sortedArray, 0, sortedArray.length - 1) as any;
     // Twice for 2 frames.
-    yield makeSortData([sortedArray], [], [], -1);
-    yield makeSortData([sortedArray], [], [], -1);
+    // yield makeSortData([sortedArray], [], [], -1);
+    // yield makeSortData([sortedArray], [], [], -1);
 
 }
 

@@ -1,6 +1,6 @@
 import { times } from 'ramda';
 import { SCALE_1, SCALE_4 } from './PerformanceGraph';
-import { ISortState, MakeSortDataFunc } from './typedefs';
+import { ISortDataItem, ISortDemo, ISortState, MakeSortDataFunc } from './typedefs';
 
 export function scaleToN(scale: number): number {
     const a = 10;
@@ -17,26 +17,18 @@ export function randArrayOfNumbers(scale: number): number[] {
     return times(() => randN(), scaleToN(scale));
 }
 
-export function makeSortData(numOps: number[]): MakeSortDataFunc {
-    return (arrayData: number[][], highlighted: number[], focused: number[], compare: number, selected: number[] = [], sections: number[][] = []): ISortState => {
-        const lists = [] as any;
-        if (arrayData.length) {
-            lists[0] = arrayData[0].map((value, index) => ({ compare, index, value, highlighted, focused, selected, sections }));
-            if (arrayData.length > 1) {
-                lists[1] = arrayData[1].map((value, index) => ({ compare: 0, index, value, highlighted: [], focused: [], selected: [], sections: [] }));
-            }
-        }
-        return {
-            compares: [arrayData.length ? arrayData[0][compare] : -1],
-            lists,
-            numOps,
-        };
+export function makeSortDemoData(arrayData: number[], compare: number, highlighted: number[], focused: number[], selected: number[] = [], sections: number[][] = []): ISortDemo {
+    return {
+        compare,
+        list: arrayData.map((value, index): ISortDataItem => ({ value, index, compare, highlighted, focused, selected, sections })),
     };
 }
 
-export function listExtraction(index: number) {
-    return {
-        get: state => state.lists[index] || [],
-        set: (state, _) => state,
+export function makeSortData(numOps: number[]): MakeSortDataFunc {
+    return (...sortDemoData: ISortDemo[]): ISortState => {
+        return {
+            lists: sortDemoData,
+            numOps,
+        };
     };
 }

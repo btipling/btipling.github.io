@@ -7,7 +7,7 @@ import { ISinks, ISortDataItem, ISources } from './typedefs';
 
 import '../sass/sortitem.sass';
 
-export default function Item(sources: ISources): ISinks {
+export default function SortItem(sources: ISources): ISinks {
     const state$ = sources.onion.state$;
 
     const vdom$ = state$.map(state => {

@@ -1,4 +1,4 @@
-import { randArrayOfNumbers } from './sortUtils';
+import { makeSortDemoData, randArrayOfNumbers } from './sortUtils';
 import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
 
 export function* bubbleSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
@@ -13,14 +13,14 @@ export function* bubbleSort(unsortedArray: number[], makeSortData: MakeSortDataF
             b = j + 1;
             const itemA = sortedArray[a];
             const itemB = sortedArray[b];
-            yield makeSortData([sortedArray], [a], [b], a);
+            yield makeSortData(makeSortDemoData(sortedArray, a, [a], [b]));
             if (itemB < itemA) {
                 sortedArray[a] = itemB;
                 sortedArray[b] = itemA;
-                yield makeSortData([sortedArray], [b], [a], b);
+                yield makeSortData(makeSortDemoData(sortedArray, b, [b], [a]));
                 swapped = true;
             } else {
-                yield makeSortData([sortedArray], [b], [-1], b);
+                yield makeSortData(makeSortDemoData(sortedArray, b, [b], [-1]));
             }
         }
         if (!swapped) {
@@ -28,8 +28,8 @@ export function* bubbleSort(unsortedArray: number[], makeSortData: MakeSortDataF
         }
     }
     // Twice for 2 frames.
-    yield makeSortData([sortedArray], [], [], -1);
-    yield makeSortData([sortedArray], [], [], -1);
+    yield makeSortData(makeSortDemoData(sortedArray, -1, [], []));
+    yield makeSortData(makeSortDemoData(sortedArray, -1, [], []));
 }
 
 function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
