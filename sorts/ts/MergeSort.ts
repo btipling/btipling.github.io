@@ -2,7 +2,17 @@
 import { makeSortDemoData, randArrayOfNumbers } from './sortUtils';
 import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
 
+function fix(r: number[], len: number): number[] {
+    const fixedR = ([] as number[]).concat(r);
+    while (fixedR.length < len) {
+        fixedR.push(-1);
+    }
+    return fixedR;
+}
+
 export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
+
+    const totalLen = unsortedArray.length;
 
     function* mergeSorter(arr: number[], trackStart: number): Iterator<ISortState> {
         if (arr.length <= 1) {
@@ -20,7 +30,7 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
         yield* mergeSorter(right, trackStart + p) as any;
         yield makeSortData(
             makeSortDemoData(trackingArray.map((n, si) => si >= trackStart && si < trackStart + p ? 0 : n), -1, [], []),
-            makeSortDemoData(fix(left), -1, left.map((_, ii) => ii), []),
+            makeSortDemoData(fix(left, totalLen), -1, left.map((_, ii) => ii), []),
             makeSortDemoData([], -1, [], []),
         );
         yield* merge(arr, left, right) as any;
@@ -30,96 +40,96 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
             return;
         }
 
-        function fix(r: number[]): number[] {
-            const fixedR = ([] as number[]).concat(r);
-            while (fixedR.length < sortedArray.length) {
-                fixedR.push(-1);
-            }
-            return fixedR;
-        }
-
+        // Here we merge left and right. arrayToMergeInto is arr passed in from mergeSorter.
         function* merge(arrayToMergeInto: number[], leftR: number[], rightR: number[]): Iterator<ISortState> {
             let i = 0;
+            // purge is used to punch a hole in the area of the main sort array in the sort demo display.
             const purge = (n, si) => (si >= (trackStart + i)) && si < (trackStart + arr.length) ? 0 : n;
+
+            // cameFrom arrays track the highlight in main array and help maintain left/right track array position.
             const cameFromLeft = ([] as number[]);
             const cameFromRight = ([] as number[]);
+            // These leftTrack/rightTrack arrays are an optimization and are updated with state to display to sortDemo.
+            const leftTrack = fix(([] as number[]).concat(leftR), totalLen);
+            const rightTrack = fix(([] as number[]).concat(rightR), totalLen);
+
+            // These highlight arrays are used to highlight and focus the left and right arrays in their respective sort demos.
             const leftHighlight = leftR.map((_, ii) => ii);
             const rightHighlight = rightR.map((_, ii) => ii);
 
-            yield makeSortData(
-                makeSortDemoData(trackingArray.map(purge), -1, [], []),
-                makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
-                makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
-            );
+            // The innerTrack array is similar to left/right Track. It's an optimization and used to update the state for the sortDemo.
+            const innerTrack = trackingArray.map(purge);
 
-            function pad(a, b) {
-                return b.map(_ => 0).concat(a);
+            function* updateSortState() {
+                yield makeSortData(
+                    makeSortDemoData(innerTrack, -1, cameFromLeft, cameFromRight),
+                    makeSortDemoData(leftTrack, -1, leftHighlight, []),
+                    makeSortDemoData(rightTrack, -1, [], rightHighlight),
+                );
             }
+
+            function* advanceLeft() {
+                yield* advanceTrackingSortState(leftR, leftTrack, cameFromLeft) as any;
+            }
+
+            function* advanceRight() {
+                yield* advanceTrackingSortState(rightR, rightTrack, cameFromRight) as any;
+            }
+
+            // To advance the state we remove from the leftR or rightR and update all the tracking state, then advance i and yield state.
+            function* advanceTrackingSortState(sideR: number[], sideTrack: number[], cameFrom: number[]) {
+                // Update arr with current state, this is a core part of the merge operation, not tracking.
+                arrayToMergeInto[i] = sideR.shift() as number;
+
+                // This is all tracking for display.
+                const mappedIndex = i + trackStart;
+                sideTrack[cameFrom.length] = 0;
+                cameFrom.push(mappedIndex);
+                trackingArray[mappedIndex] = arrayToMergeInto[i];
+                innerTrack[mappedIndex] = arrayToMergeInto[i];
+
+                // Advancing i is a core part of the mege operation, not just tracking.
+                i += 1;
+                yield* updateSortState() as any;
+            }
+
+            // While we have both left and right stacks, check which is smaller and advance that one.
             while (leftR.length && rightR.length) {
-                const mappedIndex = i + trackStart;
                 if (leftR[0] <= right[0]) {
-                    arrayToMergeInto[i] = leftR.shift() as number;
-                    cameFromLeft.push(mappedIndex);
+                    yield* advanceLeft() as any;
                 } else {
-                    arrayToMergeInto[i] = rightR.shift() as number;
-                    cameFromRight.push(mappedIndex);
+                    yield* advanceRight() as any;
                 }
-                trackingArray[mappedIndex] = arrayToMergeInto[i];
-                i += 1;
-                yield makeSortData(
-                    makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
-                    makeSortDemoData(fix(pad(leftR, cameFromLeft)), -1, leftHighlight, []),
-                    makeSortDemoData(fix(pad(rightR, cameFromRight)), -1, [], rightHighlight),
-                );
             }
 
-            for (; leftR.length;) {
-                const mappedIndex = i + trackStart;
-                arrayToMergeInto[i] = leftR.shift() as number;
-                trackingArray[mappedIndex] = arrayToMergeInto[i];
-                cameFromLeft.push(mappedIndex);
-                i += 1;
-                yield makeSortData(
-                    makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
-                    makeSortDemoData(fix(pad(leftR, cameFromLeft)), -1, pad(leftR, cameFromLeft).map((_, ii) => ii), []),
-                    makeSortDemoData(fix(pad(rightR, cameFromRight)), -1, [], pad(rightR, cameFromRight).map((_, ii) => ii)),
-                );
+            // Advance any remaining on the left.
+            while (leftR.length) {
+                yield* advanceLeft() as any;
             }
 
-            for (; rightR.length;) {
-                const mappedIndex = i + trackStart;
-                arrayToMergeInto[i] = rightR.shift() as number;
-                trackingArray[mappedIndex] = arrayToMergeInto[i];
-                cameFromRight.push(mappedIndex);
-                i += 1;
-                yield makeSortData(
-                    makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
-                    makeSortDemoData(fix(pad(leftR, cameFromLeft)), -1, pad(leftR, cameFromLeft).map((_, ii) => ii), []),
-                    makeSortDemoData(fix(pad(rightR, cameFromRight)), -1, [], pad(rightR, cameFromRight).map((_, ii) => ii)),
-                );
+            // Advance any remaining on the right.
+            while (rightR.length) {
+                yield* advanceRight() as any;
             }
         }
     }
 
+    function* updateTopLevelSortState() {
+        yield makeSortData(
+            makeSortDemoData(sortedArray, -1, [], []),
+            makeSortDemoData([], -1, [], []),
+            makeSortDemoData([], -1, [], []),
+        );
+    }
+
     const sortedArray = ([] as number[]).concat(unsortedArray);
+    // The trackingArray is used as a mirror of the sort state in a given snapshot of time. It is updated on the fly.
     const trackingArray = ([] as number[]).concat(unsortedArray);
-    yield makeSortData(
-        makeSortDemoData(sortedArray, -1, [], []),
-        makeSortDemoData([], -1, [], []),
-        makeSortDemoData([], -1, [], []),
-    );
+    yield* updateTopLevelSortState() as any;
     yield* mergeSorter(sortedArray, 0) as any;
-    // Twice for 2 frames.
-    yield makeSortData(
-        makeSortDemoData(sortedArray, -1, [], []),
-        makeSortDemoData([], -1, [], []),
-        makeSortDemoData([], -1, [], []),
-    );
-    yield makeSortData(
-        makeSortDemoData(sortedArray, -1, [], []),
-        makeSortDemoData([], -1, [], []),
-        makeSortDemoData([], -1, [], []),
-    );
+    // Finish and show twice for 2 frames.
+    yield* updateTopLevelSortState() as any;
+    yield* updateTopLevelSortState() as any;
 
 }
 
