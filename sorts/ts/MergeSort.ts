@@ -40,7 +40,7 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
             return;
         }
 
-        // Here we merge left and right. arrayToMergeInto is arr passed in from mergeSorter.
+        // Here left and right are merged. arrayToMergeInto is arr passed in from mergeSorter.
         function* merge(arrayToMergeInto: number[], leftR: number[], rightR: number[]): Iterator<ISortState> {
             let i = 0;
             // purge is used to punch a hole in the area of the main sort array in the sort demo display.
@@ -76,7 +76,7 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 yield* advanceTrackingSortState(rightR, rightTrack, cameFromRight) as any;
             }
 
-            // To advance the state we remove from the leftR or rightR and update all the tracking state, then advance i and yield state.
+            // To advance the state remove from the leftR or rightR and update all the tracking state, then advance i and yield state.
             function* advanceTrackingSortState(sideR: number[], sideTrack: number[], cameFrom: number[]) {
                 // Update arr with current state, this is a core part of the merge operation, not tracking.
                 arrayToMergeInto[i] = sideR.shift() as number;
@@ -93,7 +93,10 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 yield* updateSortState() as any;
             }
 
-            // While we have both left and right stacks, check which is smaller and advance that one.
+            // Display initial sort tracking state before doing anything.
+            yield* updateSortState() as any;
+
+            // While there are both left and right stacks, check which is smaller and advance that one.
             while (leftR.length && rightR.length) {
                 if (leftR[0] <= right[0]) {
                     yield* advanceLeft() as any;
