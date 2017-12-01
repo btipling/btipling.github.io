@@ -1,6 +1,6 @@
 // import { makeSortDemoData, randArrayOfNumbers } from './sortUtils';
-import { makeSortDemoData, randArrayOfNumbers } from './sortUtils';
-import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
+import { makeSortDemoData, randArrayOfNumbers } from '../sortUtils';
+import { ISorter, ISortState, MakeSortDataFunc } from '../typedefs';
 
 function fix(r: number[], len: number): number[] {
     const fixedR = ([] as number[]).concat(r);

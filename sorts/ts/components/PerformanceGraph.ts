@@ -7,10 +7,11 @@ import {
 import { map, max, min, range } from 'ramda';
 import { VNode } from 'snabbdom/vnode';
 import xs, { Stream } from 'xstream';
-import { getSplines } from '../external/bezier-spline';
-import '../sass/performancegraph.sass';
-import { scaleToN } from './sortUtils';
-import { IGraphState, ISinks, ISources, Reducer } from './typedefs';
+import { getSplines } from '../../external/bezier-spline';
+import { scaleToN } from '../sortUtils';
+import { IGraphState, ISinks, ISources, Reducer } from '../typedefs';
+
+import '../../sass/performancegraph.sass';
 
 export const SCALE_1 = 1;
 export const SCALE_2 = 2;

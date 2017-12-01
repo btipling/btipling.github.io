@@ -6,14 +6,14 @@ import isolate from '@cycle/isolate';
 import { TimeSource } from '@cycle/time';
 import { makeCollection } from 'cycle-onionify';
 import xs, { Stream } from 'xstream';
+import { makeSortData, makeSortDemoData } from '../sortUtils';
+import { Component, IRoute, ISinks, ISorter, ISources, IState, MakeSortDataFunc } from '../typedefs';
 import PerformanceGraph, { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from './PerformanceGraph';
 import SortChooser from './SortChooser';
 import SortDemo from './SortDemo';
-import { makeSortData, makeSortDemoData } from './sortUtils';
 import SpeedChooser, { SPEED_1X, SPEED_2X, SPEED_3X, SPEED_4X, SPEED_5X } from './SpeedChooser';
-import { Component, IRoute, ISinks, ISorter, ISources, IState, MakeSortDataFunc } from './typedefs';
 
-import '../sass/sortview.sass';
+import '../../sass/sortview.sass';
 
 export interface IState {
     content: string;

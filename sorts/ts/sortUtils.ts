@@ -1,5 +1,5 @@
 import { times } from 'ramda';
-import { SCALE_1, SCALE_4 } from './PerformanceGraph';
+import { SCALE_1, SCALE_4 } from './components/PerformanceGraph';
 import { ISortDataItem, ISortDemo, ISortState, MakeSortDataFunc } from './typedefs';
 
 export function scaleToN(scale: number): number {

@@ -6,9 +6,9 @@ import {
     VNode,
 } from '@cycle/dom';
 import xs, { Stream } from 'xstream';
-import { ISinks, ISources, Reducer } from './typedefs';
+import { ISinks, ISources, Reducer } from '../typedefs';
 
-import '../sass/speedchooser.sass';
+import '../../sass/speedchooser.sass';
 
 export const SPEED_1X = 1;
 export const SPEED_2X = 2;

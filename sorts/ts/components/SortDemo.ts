@@ -5,10 +5,10 @@ import {
 } from '@cycle/dom';
 // import isolate from '@cycle/isolate';
 import xs, { Stream } from 'xstream';
-import { ISinks, ISortDemo, ISources, Reducer } from './typedefs';
+import { ISinks, ISortDemo, ISources, Reducer } from '../typedefs';
 
-import '../sass/sortdemo.sass';
-import '../sass/sortitem.sass';
+import '../../sass/sortdemo.sass';
+import '../../sass/sortitem.sass';
 
 function view(sortList$: Stream<[ISortDemo]>): Stream<VNode> {
     return sortList$.map(([state]) => {

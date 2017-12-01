@@ -6,9 +6,9 @@ import {
     ul,
 } from '@cycle/dom';
 import xs from 'xstream';
-import { Component, IRoute, ISinks } from './typedefs';
+import { Component, IRoute, ISinks } from '../typedefs';
 
-import '../sass/sortchooser.sass';
+import '../../sass/sortchooser.sass';
 
 export default function SortChooser(route: IRoute, routes: IRoute[]): Component {
     return (): ISinks => {

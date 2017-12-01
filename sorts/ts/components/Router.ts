@@ -1,7 +1,7 @@
 
 import { Location } from 'history';
 import { reduce } from 'ramda';
-import { Component, IRoute, ISinks, ISources } from './typedefs';
+import { Component, IRoute, ISinks, ISources } from '../typedefs';
 
 type SortView = (route: IRoute, routes: IRoute[]) => Component;
 

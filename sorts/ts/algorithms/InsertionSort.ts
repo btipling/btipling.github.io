@@ -1,5 +1,5 @@
-import { makeSortDemoData, randArrayOfNumbers } from './sortUtils';
-import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
+import { makeSortDemoData, randArrayOfNumbers } from '../sortUtils';
+import { ISorter, ISortState, MakeSortDataFunc } from '../typedefs';
 
 export function* insertionSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
     const len = unsortedArray.length;

@@ -3,9 +3,9 @@ import {
     span,
 } from '@cycle/dom';
 import xs from 'xstream';
-import { ISinks, ISortDataItem, ISources } from './typedefs';
+import { ISinks, ISortDataItem, ISources } from '../typedefs';
 
-import '../sass/sortitem.sass';
+import '../../sass/sortitem.sass';
 
 export default function SortItem(sources: ISources): ISinks {
     const state$ = sources.onion.state$;

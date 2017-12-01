@@ -1,5 +1,5 @@
-import { makeSortDemoData, randArrayOfNumbers } from './sortUtils';
-import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
+import { makeSortDemoData, randArrayOfNumbers } from '../sortUtils';
+import { ISorter, ISortState, MakeSortDataFunc } from '../typedefs';
 
 export function* quickSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
     function* quickSorter(arr: number[], low: number, high: number): Iterator<ISortState> {

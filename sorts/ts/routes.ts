@@ -1,7 +1,7 @@
-import bubbleSort from './BubbleSort';
-import insertionSort from './InsertionSort';
-import mergeSort from './MergeSort';
-import quickSort from './QuickSort';
+import bubbleSort from './algorithms/BubbleSort';
+import insertionSort from './algorithms/InsertionSort';
+import mergeSort from './algorithms/MergeSort';
+import quickSort from './algorithms/QuickSort';
 import { IRoute } from './typedefs';
 
 const routes: IRoute[] = [
