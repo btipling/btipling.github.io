@@ -33,7 +33,7 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
         function fix(r: number[]): number[] {
             const fixedR = ([] as number[]).concat(r);
             while (fixedR.length < sortedArray.length) {
-                fixedR.push(0);
+                fixedR.push(-1);
             }
             return fixedR;
         }
@@ -41,6 +41,11 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
         function* merge(arrayToMergeInto: number[], leftR: number[], rightR: number[]): Iterator<ISortState> {
             let i = 0;
             const purge = (n, si) => (si >= (trackStart + i)) && si < (trackStart + arr.length) ? 0 : n;
+            const cameFromLeft = ([] as number[]);
+            const cameFromRight = ([] as number[]);
+            const leftHighlight = leftR.map((_, ii) => ii);
+            const rightHighlight = rightR.map((_, ii) => ii);
+
             yield makeSortData(
                 makeSortDemoData(trackingArray.map(purge), -1, [], []),
                 makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
@@ -50,9 +55,6 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
             function pad(a, b) {
                 return b.map(_ => 0).concat(a);
             }
-
-            const cameFromLeft = ([] as number[]);
-            const cameFromRight = ([] as number[]);
             while (leftR.length && rightR.length) {
                 const mappedIndex = i + trackStart;
                 if (leftR[0] <= right[0]) {
@@ -66,8 +68,8 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
                 i += 1;
                 yield makeSortData(
                     makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
-                    makeSortDemoData(fix(pad(leftR, cameFromLeft)), -1, pad(leftR, cameFromLeft).map((_, ii) => ii), []),
-                    makeSortDemoData(fix(pad(rightR, cameFromRight)), -1, [], pad(rightR, cameFromRight).map((_, ii) => ii)),
+                    makeSortDemoData(fix(pad(leftR, cameFromLeft)), -1, leftHighlight, []),
+                    makeSortDemoData(fix(pad(rightR, cameFromRight)), -1, [], rightHighlight),
                 );
             }
 
