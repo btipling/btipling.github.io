@@ -24,6 +24,7 @@ export function ticker(time$: TimeSource, speedChooser: { speed: number }): Stre
     const speedChoice = speedChooser ? speedChooser.speed : SPEED_4X;
     let speed;
     if (speedChoice === SPEED_5X) {
+        console.log('animation Frame boyz');
         return time$.animationFrames();
     }
     switch (speedChoice) {

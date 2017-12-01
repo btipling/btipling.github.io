@@ -55,7 +55,7 @@ function view(speed$: Stream<ISpeedOption>): Stream<VNode> {
 }
 
 export function defaultSpeed(): { speed: number } {
-    return { speed: SPEED_4X };
+    return { speed: SPEED_1X };
 }
 
 export default function SpeedChooser(sources: ISources): ISinks {

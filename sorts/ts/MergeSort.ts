@@ -4,43 +4,20 @@ import { ISorter, ISortState, MakeSortDataFunc } from './typedefs';
 
 export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
 
-    function* mergeSorter(arr: number[], trackStart: number, trackEnd: number): Iterator<ISortState> {
+    function* mergeSorter(arr: number[], trackStart: number): Iterator<ISortState> {
         if (arr.length <= 1) {
             return;
         }
 
         const low = 0;
-        const high = arr.length - 1;
-        const subsection = [sortedArray.map((_, index) => index).filter(index => index < trackStart || index > trackStart + (arr.length - 1))];
+        // const subsection = [sortedArray.map((_, index) => index).filter(index => index < trackStart || index > trackStart + (arr.length - 1))];
 
-        function* yieldSortProgress(highlighted: number[], focused: number[], highlightSection: number[], lists: number[][]): Iterator<ISortState> {
-            for (let i = 0; i < arr.length; i++) {
-                sortedArray[i + trackStart] = arr[i];
-            }
-            const stuffedLists = lists.map(l => {
-                const newR = ([] as number[]).concat(l);
-                while (newR.length < sortedArray.length) {
-                    newR.push(0);
-                }
-                return newR;
-            });
-            yield makeSortData(
-                makeSortDemoData(stuffedLists[0], -1, highlighted, focused, [], subsection.concat([highlightSection])),
-                makeSortDemoData(stuffedLists[1], -1, [], [], []),
-            );
-            // yield makeSortData(lists, highlighted, focused, -1, [], subsection.concat([highlightSection]));
-        }
+        const p = Math.floor(arr.length / 2);
+        const left = arr.slice(low, p);
+        const right = arr.slice(p, arr.length);
 
-        yield* yieldSortProgress([], [], [], [sortedArray, arr]) as any;
-
-        const p = Math.floor(high / 2);
-        const left = arr.slice(low, p + 1);
-        yield* yieldSortProgress([], [], [], [sortedArray.map((n, si) => si > trackStart && si <= trackStart + p - 1 ? 0 : n), left]) as any;
-
-        const right = arr.slice(p + 1, high + 1);
-        // yield* yieldSortProgress([], [], [], [sortedArray.map((n, si) => si > trackStart && si <= trackStart + arr.length - 1 ? 0 : n), left, right]) as any;
-        yield* mergeSorter(left, trackStart, trackEnd - p) as any;
-        yield* mergeSorter(right, p, trackEnd) as any;
+        yield* mergeSorter(left, trackStart) as any;
+        yield* mergeSorter(right, trackStart + p) as any;
         yield* merge(arr, left, right) as any;
 
         if (arr === unsortedArray) {
@@ -48,37 +25,80 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
             return;
         }
 
+        function fix(r: number[]): number[] {
+            const fixedR = ([] as number[]).concat(r);
+            while (fixedR.length < sortedArray.length) {
+                fixedR.push(0);
+            }
+            return fixedR;
+        }
+
         function* merge(arrayToMergeInto: number[], leftR: number[], rightR: number[]): Iterator<ISortState> {
             let i = 0;
-            // const purge = (n, si) => si > trackStart + i && si <= trackStart + arr.length - 1 ? 0 : n;
+            const purge = (n, si) => (si >= (trackStart + i)) && si < (trackStart + arr.length) ? 0 : n;
+            yield makeSortData(
+                makeSortDemoData(trackingArray.map(purge), -1, [], []),
+                makeSortDemoData(fix(leftR), -1, [], []),
+                makeSortDemoData(fix(rightR), -1, [], []),
+            );
             while (leftR.length && rightR.length) {
                 if (leftR[0] <= right[0]) {
                     arrayToMergeInto[i] = leftR.shift() as number;
                 } else {
                     arrayToMergeInto[i] = rightR.shift() as number;
                 }
-                // yield* yieldSortProgress([], [], [], [sortedArray.map(purge), leftR, rightR]) as any;
+                trackingArray[i + trackStart] = arrayToMergeInto[i];
                 i += 1;
+                yield makeSortData(
+                    makeSortDemoData(trackingArray.map(purge), -1, [], []),
+                    makeSortDemoData(fix(leftR), -1, [], []),
+                    makeSortDemoData(fix(rightR), -1, [], []),
+                );
             }
 
-            for (; leftR.length; i++) {
+            for (; leftR.length;) {
                 arrayToMergeInto[i] = leftR.shift() as number;
-                // yield* yieldSortProgress([], [], [], [sortedArray.map(purge), leftR, rightR]) as any;
+                trackingArray[i + trackStart] = arrayToMergeInto[i];
+                i += 1;
+                yield makeSortData(
+                    makeSortDemoData(trackingArray.map(purge), -1, [], []),
+                    makeSortDemoData(fix(leftR), -1, [], []),
+                    makeSortDemoData(fix(rightR), -1, [], []),
+                );
             }
 
-            for (; rightR.length; i++) {
+            for (; rightR.length;) {
                 arrayToMergeInto[i] = rightR.shift() as number;
-                // yield* yieldSortProgress([], [], [], [sortedArray.map(purge), leftR, rightR]) as any;
+                trackingArray[i + trackStart] = arrayToMergeInto[i];
+                i += 1;
+                yield makeSortData(
+                    makeSortDemoData(trackingArray.map(purge), -1, [], []),
+                    makeSortDemoData(fix(leftR), -1, [], []),
+                    makeSortDemoData(fix(rightR), -1, [], []),
+                );
             }
         }
     }
 
     const sortedArray = ([] as number[]).concat(unsortedArray);
-    // yield makeSortData([sortedArray], [], [], -1);
-    yield* mergeSorter(sortedArray, 0, sortedArray.length - 1) as any;
+    const trackingArray = ([] as number[]).concat(unsortedArray);
+    yield makeSortData(
+        makeSortDemoData(sortedArray, -1, [], []),
+        makeSortDemoData([], -1, [], []),
+        makeSortDemoData([], -1, [], []),
+    );
+    yield* mergeSorter(sortedArray, 0) as any;
     // Twice for 2 frames.
-    // yield makeSortData([sortedArray], [], [], -1);
-    // yield makeSortData([sortedArray], [], [], -1);
+    yield makeSortData(
+        makeSortDemoData(sortedArray, -1, [], []),
+        makeSortDemoData([], -1, [], []),
+        makeSortDemoData([], -1, [], []),
+    );
+    yield makeSortData(
+        makeSortDemoData(sortedArray, -1, [], []),
+        makeSortDemoData([], -1, [], []),
+        makeSortDemoData([], -1, [], []),
+    );
 
 }
 
