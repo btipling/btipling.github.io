@@ -18,9 +18,10 @@ export function randArrayOfNumbers(scale: number): number[] {
 }
 
 export function makeSortDemoData(arrayData: number[], compare: number, highlighted: number[], focused: number[], selected: number[] = [], sections: number[][] = []): ISortDemo {
+    const compareData = arrayData[compare];
     return {
-        compare,
-        list: arrayData.map((value, index): ISortDataItem => ({ value, index, compare, highlighted, focused, selected, sections })),
+        compare: compareData,
+        list: arrayData.map((value, index): ISortDataItem => ({ value, index, compare: compareData, highlighted, focused, selected, sections })),
     };
 }
 

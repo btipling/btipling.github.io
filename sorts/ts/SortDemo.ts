@@ -33,38 +33,27 @@ function view(listVNode$: Stream<[ISortDemo]>): Stream<VNode> {
                 style: {
                     height: `${sortData.value}%`,
                 },
-            }, [
-                    span('.content', ' '),
-                ])).concat([div({
-                    class: {
-                        'SortDemo-compareAt': true,
-                    },
-                    style: {
-                        bottom: `${compare}%`,
-                        visibility: compare >= 0 ? 'visible' : 'hidden',
-                    },
-                })])),
-        ]);
+            },
+                span('.content', ' '))),
+            ),
+        ].concat([div({
+            class: {
+                'SortDemo-compareAt': true,
+            },
+            style: {
+                bottom: `${compare}%`,
+                visibility: compare >= 0 ? 'visible' : 'hidden',
+            },
+        })]));
     });
 }
 
 export default function SortDemo(sources: ISources): ISinks {
-    const state$ = (sources.onion.state$ as any as Stream<ISortDemo>).debug(console.log);
+    const state$ = (sources.onion.state$ as any as Stream<ISortDemo>);
 
     const reducer$ = xs.of(function initReducer() {
         return { compare: 0, list: [] };
     }) as any as Stream<Reducer>;
-
-    // const List = makeCollection({
-    //     collectSinks: (instances: any) => ({
-    //         dom: instances.pickCombine('dom'),
-    //         onion: instances.pickMerge('onion'),
-    //     }),
-    //     item: SortItem,
-    //     itemKey: (_: any, index: number) => index.toString(),
-    //     itemScope: (key: string) => key,
-    // });
-    // const listSinks = isolate(List, 'list')(sources as any);
 
     const vdom$ = view(xs.combine(state$));
     return {
