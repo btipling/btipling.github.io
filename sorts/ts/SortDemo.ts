@@ -1,30 +1,17 @@
 import {
     div,
+    span,
     VNode,
 } from '@cycle/dom';
-import isolate from '@cycle/isolate';
-import { makeCollection } from 'cycle-onionify';
+// import isolate from '@cycle/isolate';
 import xs, { Stream } from 'xstream';
-import SortItem from './SortItem';
-import { Component, ISinks, ISortDemo, ISources } from './typedefs';
+import { ISinks, ISortDemo, ISources, Reducer } from './typedefs';
 
 import '../sass/sortdemo.sass';
+import '../sass/sortitem.sass';
 
-export function sortComponentList(): Component {
-    return makeCollection({
-        collectSinks: (instances: any) => ({
-            dom: instances.pickCombine('dom')
-                .map((itemVNodes: VNode[]) => itemVNodes),
-            onion: instances.pickMerge('onion'),
-        }),
-        item: SortItem,
-        itemKey: (_: any, index: number) => index.toString(),
-        itemScope: (key: string) => key,
-    });
-}
-
-function view(listVNode$: Stream<[ISortDemo, VNode[]]>): Stream<VNode> {
-    return listVNode$.map(([state, listItems]) => {
+function view(listVNode$: Stream<[ISortDemo]>): Stream<VNode> {
+    return listVNode$.map(([state]) => {
         const { compare } = state as any as ISortDemo;
         return div('.SortDemo', [
             div({
@@ -32,30 +19,56 @@ function view(listVNode$: Stream<[ISortDemo, VNode[]]>): Stream<VNode> {
                     'SortDemo-listContainer': true,
                 },
                 style: {
-                    'grid-template-columns': `repeat(${listItems.length}, 1fr)`,
+                    'grid-template-columns': `repeat(${state.list.length}, 1fr)`,
                 },
-            }, listItems.concat([div({
+            }, state.list.map(sortData => div({
                 class: {
-                    'SortDemo-compareAt': true,
+                    'SortItem': true,
+                    'SortItem-focused': sortData.focused.indexOf(sortData.index) !== -1,
+                    'SortItem-highlighted': sortData.highlighted.indexOf(sortData.index) !== -1,
+                    'SortItem-highlightedSection': sortData.sections[1] && sortData.sections[1].find((index: number) => index === sortData.index) !== undefined,
+                    'SortItem-section': sortData.sections.length && sortData.sections[0].find((index: number) => index === sortData.index) !== undefined,
+                    'SortItem-selected': sortData.selected.indexOf(sortData.index) !== -1,
                 },
                 style: {
-                    bottom: `${compare}%`,
-                    visibility: compare >= 0 ? 'visible' : 'hidden',
+                    height: `${sortData.value}%`,
                 },
-            })])),
+            }, [
+                    span('.content', ' '),
+                ])).concat([div({
+                    class: {
+                        'SortDemo-compareAt': true,
+                    },
+                    style: {
+                        bottom: `${compare}%`,
+                        visibility: compare >= 0 ? 'visible' : 'hidden',
+                    },
+                })])),
         ]);
     });
 }
 
 export default function SortDemo(sources: ISources): ISinks {
-    const state$ = sources.onion.state$ as any as Stream<ISortDemo>;
+    const state$ = (sources.onion.state$ as any as Stream<ISortDemo>).debug(console.log);
 
-    const List = sortComponentList();
-    const listSinks = isolate(List, 'list')(sources as any);
+    const reducer$ = xs.of(function initReducer() {
+        return { compare: 0, list: [] };
+    }) as any as Stream<Reducer>;
 
-    const vdom$ = view(xs.combine(state$, listSinks));
+    // const List = makeCollection({
+    //     collectSinks: (instances: any) => ({
+    //         dom: instances.pickCombine('dom'),
+    //         onion: instances.pickMerge('onion'),
+    //     }),
+    //     item: SortItem,
+    //     itemKey: (_: any, index: number) => index.toString(),
+    //     itemScope: (key: string) => key,
+    // });
+    // const listSinks = isolate(List, 'list')(sources as any);
+
+    const vdom$ = view(xs.combine(state$));
     return {
         dom: vdom$,
-        onion: xs.empty(),
+        onion: reducer$,
     };
 }

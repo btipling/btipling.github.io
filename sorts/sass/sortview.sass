@@ -3,16 +3,22 @@
     grid-template-columns: 100%
     grid-template-rows: 1fr 50px 1fr
 
+.SortView-demoContainer
+    position: relative
+    display: grid
+    grid-template-columns: 75px 1fr 75px;
+    grid-template-rows: 1fr
+
 .SortView-demo
     position: relative
     display: grid
-    grid-template-columns: 75px 1fr 75px
+    grid-template-columns: 1fr;
     grid-template-rows: 1fr
 
-.SortView-demo .SpeedChooser
+.SortView-demoContainer .SpeedChooser
     opacity: 0;
 
-.SortView-demo:hover .SpeedChooser
+.SortView-demoContainer:hover .SpeedChooser
     opacity: 1;
 
 .SortView-graph
