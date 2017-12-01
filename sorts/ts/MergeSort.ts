@@ -18,6 +18,11 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
 
         yield* mergeSorter(left, trackStart) as any;
         yield* mergeSorter(right, trackStart + p) as any;
+        yield makeSortData(
+            makeSortDemoData(trackingArray.map((n, si) => si >= trackStart && si < trackStart + p ? 0 : n), -1, [], []),
+            makeSortDemoData(fix(left), -1, left.map((_, ii) => ii), []),
+            makeSortDemoData([], -1, [], []),
+        );
         yield* merge(arr, left, right) as any;
 
         if (arr === unsortedArray) {
@@ -38,43 +43,52 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
             const purge = (n, si) => (si >= (trackStart + i)) && si < (trackStart + arr.length) ? 0 : n;
             yield makeSortData(
                 makeSortDemoData(trackingArray.map(purge), -1, [], []),
-                makeSortDemoData(fix(leftR), -1, [], []),
-                makeSortDemoData(fix(rightR), -1, [], []),
+                makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
+                makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
             );
+            const cameFromLeft = ([] as number[]);
+            const cameFromRight = ([] as number[]);
             while (leftR.length && rightR.length) {
+                const mappedIndex = i + trackStart;
                 if (leftR[0] <= right[0]) {
                     arrayToMergeInto[i] = leftR.shift() as number;
+                    cameFromLeft.push(mappedIndex);
                 } else {
                     arrayToMergeInto[i] = rightR.shift() as number;
+                    cameFromRight.push(mappedIndex);
                 }
-                trackingArray[i + trackStart] = arrayToMergeInto[i];
+                trackingArray[mappedIndex] = arrayToMergeInto[i];
                 i += 1;
                 yield makeSortData(
-                    makeSortDemoData(trackingArray.map(purge), -1, [], []),
-                    makeSortDemoData(fix(leftR), -1, [], []),
-                    makeSortDemoData(fix(rightR), -1, [], []),
+                    makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
+                    makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
+                    makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
                 );
             }
 
             for (; leftR.length;) {
+                const mappedIndex = i + trackStart;
                 arrayToMergeInto[i] = leftR.shift() as number;
-                trackingArray[i + trackStart] = arrayToMergeInto[i];
+                trackingArray[mappedIndex] = arrayToMergeInto[i];
+                cameFromLeft.push(mappedIndex);
                 i += 1;
                 yield makeSortData(
-                    makeSortDemoData(trackingArray.map(purge), -1, [], []),
-                    makeSortDemoData(fix(leftR), -1, [], []),
-                    makeSortDemoData(fix(rightR), -1, [], []),
+                    makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
+                    makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
+                    makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
                 );
             }
 
             for (; rightR.length;) {
+                const mappedIndex = i + trackStart;
                 arrayToMergeInto[i] = rightR.shift() as number;
-                trackingArray[i + trackStart] = arrayToMergeInto[i];
+                trackingArray[mappedIndex] = arrayToMergeInto[i];
+                cameFromRight.push(mappedIndex);
                 i += 1;
                 yield makeSortData(
-                    makeSortDemoData(trackingArray.map(purge), -1, [], []),
-                    makeSortDemoData(fix(leftR), -1, [], []),
-                    makeSortDemoData(fix(rightR), -1, [], []),
+                    makeSortDemoData(trackingArray.map(purge), -1, cameFromLeft, cameFromRight),
+                    makeSortDemoData(fix(leftR), -1, leftR.map((_, ii) => ii), []),
+                    makeSortDemoData(fix(rightR), -1, [], rightR.map((_, ii) => ii)),
                 );
             }
         }
