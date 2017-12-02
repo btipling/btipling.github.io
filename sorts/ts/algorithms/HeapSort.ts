@@ -20,21 +20,6 @@ function addToHeap(nodeToAdd: INode, currentNode: INode) {
 }
 
 function findArrayPositionForNode(haystack: INode, needle: INode, currentPosition: number = 0): { position: number, found: boolean } {
-    /*
-    position starts at zero
-    we go into the function
-    we check if the head is the node if so return found with position 0
-    if not we increment one and check left
-        - we go into the function
-        - we check if the new head is the node and if so return found with position 1
-            - we go to the top and see if found return 1 and that's done
-        - or we check the right and increase the position to 2
-            - we go into the function
-            - we check if the new head is the node and if so return found with position 2
-                - we return to the first left and see found from right and return 2
-                    - we return to the top and see found from left and return 2 and that's done
-            - or we set position to 3 and check the left
-    */
     let position = currentPosition;
     let result: { position: number, found: boolean } | null = null;
     if (haystack.left) {
