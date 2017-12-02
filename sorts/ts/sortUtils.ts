@@ -2,6 +2,14 @@ import { times } from 'ramda';
 import { SCALE_1, SCALE_4 } from './components/PerformanceGraph';
 import { ISortDataItem, ISortDemo, ISortState, MakeSortDataFunc } from './typedefs';
 
+export function fix(r: number[], len: number): number[] {
+    const fixedR = ([] as number[]).concat(r);
+    while (fixedR.length < len) {
+        fixedR.push(-1);
+    }
+    return fixedR;
+}
+
 export function scaleToN(scale: number): number {
     const a = 10;
     const b = 100;

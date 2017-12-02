@@ -1,14 +1,6 @@
 // import { makeSortDemoData, randArrayOfNumbers } from './sortUtils';
-import { makeSortDemoData, randArrayOfNumbers } from '../sortUtils';
+import { fix, makeSortDemoData, randArrayOfNumbers } from '../sortUtils';
 import { ISorter, ISortState, MakeSortDataFunc } from '../typedefs';
-
-function fix(r: number[], len: number): number[] {
-    const fixedR = ([] as number[]).concat(r);
-    while (fixedR.length < len) {
-        fixedR.push(-1);
-    }
-    return fixedR;
-}
 
 export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
 
