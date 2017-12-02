@@ -40,11 +40,28 @@ function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
 }
 
 function bubbleSortOpCounter(scale: number): number {
+    const unsortedArray = randArrayOfNumbers(scale);
+    const len = unsortedArray.length;
+    const sortedArray = ([] as number[]).concat(unsortedArray);
     let count = 0;
-    const len = randArrayOfNumbers(scale).length;
+    let a = 0;
+    let b = 0;
     for (let i = len; i > 0; i--) {
+        let swapped = false;
         for (let j = 0; j < i - 1; j++) {
-            count += 1;
+            a = j;
+            b = j + 1;
+            const itemA = sortedArray[a];
+            const itemB = sortedArray[b];
+            if (itemB < itemA) {
+                count += 1;
+                sortedArray[a] = itemB;
+                sortedArray[b] = itemA;
+                swapped = true;
+            }
+        }
+        if (!swapped) {
+            break;
         }
     }
     return count;

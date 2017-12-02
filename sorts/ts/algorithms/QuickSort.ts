@@ -67,13 +67,45 @@ function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
 
 function opCounter(scale: number): number {
     let count = 0;
-    const len = randArrayOfNumbers(scale).length;
-    for (let i = len; i > 0; i--) {
-        for (let j = 0; j < i - 1; j++) {
-            count += 1;
-        }
-    }
+    console.log('counting ops');
+    const unsortedArray = randArrayOfNumbers(scale);
+    const sortedArray = ([] as number[]).concat(unsortedArray);
+    quickSorter(sortedArray, 0, sortedArray.length - 1);
+    console.log('count', count, sortedArray);
     return count;
+
+    function partition(partionedArray: number[], lo: number, hi: number): number {
+        const pivot = partionedArray[lo];
+        let i = lo - 1;
+        let j = hi + 1;
+        do {
+            do {
+                i += 1;
+            } while (partionedArray[i] < pivot);
+
+            do {
+                j -= 1;
+            } while (partionedArray[j] > pivot);
+
+            if (i >= j) {
+                return j;
+            }
+
+            const t = partionedArray[j];
+            partionedArray[j] = partionedArray[i];
+            partionedArray[i] = t;
+            count += 1;
+        } while (true); // tslint:disable-line no-constant-condition
+    }
+
+    function quickSorter(arr: number[], low: number, high: number) {
+        if (low >= high) {
+            return;
+        }
+        const p = partition(arr, low, high);
+        quickSorter(arr, low, p);
+        quickSorter(arr, p + 1, high);
+    }
 }
 
 function genSortScales(scales: number[]): number[] {

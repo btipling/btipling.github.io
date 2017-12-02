@@ -31,11 +31,16 @@ function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
 
 function insertionSortOpCounter(scale: number): number {
     let count = 0;
-    const len = randArrayOfNumbers(scale).length;
+    const unsortedArray = randArrayOfNumbers(scale);
+    const len = unsortedArray.length;
+    const sortedArray = ([] as number[]).concat(unsortedArray);
     let a = 1;
     while (a < len) {
         let b = a;
-        while (b > 0) {
+        while (b > 0 && sortedArray[b - 1] > sortedArray[b]) {
+            const t = sortedArray[b];
+            sortedArray[b] = sortedArray[b - 1];
+            sortedArray[b - 1] = t;
             count += 1;
             b -= 1;
         }
