@@ -27,6 +27,7 @@ function findArrayPositionForNode(haystack: INode, needle: INode, currentPositio
         if (result.found) {
             return result;
         } else {
+            // Increment position on coming up from the left.
             position = result.position + 1;
         }
     }
@@ -34,7 +35,7 @@ function findArrayPositionForNode(haystack: INode, needle: INode, currentPositio
         return { position, found: true };
     }
     if (haystack.right) {
-        // Increment position on going right.
+        // Increment position on going down on the right.
         result = findArrayPositionForNode(haystack.right, needle, position + 1);
         if (result.found) {
             return result;
@@ -42,7 +43,6 @@ function findArrayPositionForNode(haystack: INode, needle: INode, currentPositio
             position = result.position;
         }
     }
-    // Increment position on coming up.
     return { found: false, position };
 }
 
