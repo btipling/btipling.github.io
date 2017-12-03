@@ -12,7 +12,6 @@ export function* mergeSort(unsortedArray: number[], makeSortData: MakeSortDataFu
         }
 
         const low = 0;
-        // const subsection = [sortedArray.map((_, index) => index).filter(index => index < trackStart || index > trackStart + (arr.length - 1))];
 
         const p = Math.floor(arr.length / 2);
         const left = arr.slice(low, p);
@@ -137,12 +136,63 @@ function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
 
 function opCounter(scale: number): number {
     let count = 0;
-    const len = randArrayOfNumbers(scale).length;
-    for (let i = len; i > 0; i--) {
-        for (let j = 0; j < i - 1; j++) {
-            count += 1;
+    const unsortedArray = randArrayOfNumbers(scale);
+    const sortedArray = ([] as number[]).concat(unsortedArray);
+
+    function mergeSorter(arr: number[], trackStart: number) {
+        if (arr.length <= 1) {
+            return;
+        }
+
+        const low = 0;
+
+        const p = Math.floor(arr.length / 2);
+        const left = arr.slice(low, p);
+        const right = arr.slice(p, arr.length);
+
+        mergeSorter(right, trackStart + p);
+        mergeSorter(left, trackStart);
+        merge(arr, left, right);
+
+        if (arr === unsortedArray) {
+            return;
+        }
+
+        function merge(arrayToMergeInto: number[], leftR: number[], rightR: number[]) {
+            let i = 0;
+
+            function advanceLeft() {
+                advanceTrackingSortState(leftR);
+            }
+
+            function advanceRight() {
+                advanceTrackingSortState(rightR);
+            }
+
+            function advanceTrackingSortState(sideR: number[]) {
+                count += 1;
+                arrayToMergeInto[i] = sideR.shift() as number;
+                i += 1;
+            }
+
+            while (leftR.length && rightR.length) {
+                if (leftR[0] <= right[0]) {
+                    advanceLeft();
+                } else {
+                    advanceRight();
+                }
+            }
+
+            while (leftR.length) {
+                advanceLeft();
+            }
+
+            while (rightR.length) {
+                advanceRight();
+            }
         }
     }
+    mergeSorter(sortedArray, 0);
     return count;
 }
 

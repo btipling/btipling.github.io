@@ -67,11 +67,11 @@ function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
 
 function opCounter(scale: number): number {
     let count = 0;
-    console.log('counting ops');
+
     const unsortedArray = randArrayOfNumbers(scale);
     const sortedArray = ([] as number[]).concat(unsortedArray);
     quickSorter(sortedArray, 0, sortedArray.length - 1);
-    console.log('count', count, sortedArray);
+
     return count;
 
     function partition(partionedArray: number[], lo: number, hi: number): number {
