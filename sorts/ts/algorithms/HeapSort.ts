@@ -1,64 +1,24 @@
-import { fix, makeSortDemoData, randArrayOfNumbers } from '../sortUtils';
+import { makeSortDemoData, randArrayOfNumbers } from '../sortUtils';
 import { ISorter, ISortState, MakeSortDataFunc } from '../typedefs';
 
-interface INode { left: INode | null; right: INode | null; value: number; }
-
-function addToHeap(nodeToAdd: INode, currentNode: INode) {
-    if (nodeToAdd.value <= currentNode.value) {
-        if (currentNode.left) {
-            return addToHeap(nodeToAdd, currentNode.left);
-        } else {
-            currentNode.left = nodeToAdd;
-        }
-    } else {
-        if (currentNode.right) {
-            addToHeap(nodeToAdd, currentNode.right);
-        } else {
-            currentNode.right = nodeToAdd;
-        }
-    }
+export function parent(index) {
+    return Math.floor(index / 2);
 }
 
-function findArrayPositionForNode(haystack: INode, needle: INode, currentPosition: number = 0): { position: number, found: boolean } {
-    let position = currentPosition;
-    let result: { position: number, found: boolean } | null = null;
-    if (haystack.left) {
-        result = findArrayPositionForNode(haystack.left, needle, position);
-        if (result.found) {
-            return result;
-        } else {
-            // Increment position on coming up from the left.
-            position = result.position + 1;
-        }
-    }
-    if (haystack === needle) {
-        return { position, found: true };
-    }
-    if (haystack.right) {
-        // Increment position on going down on the right.
-        result = findArrayPositionForNode(haystack.right, needle, position + 1);
-        if (result.found) {
-            return result;
-        } else {
-            position = result.position;
-        }
-    }
-    return { found: false, position };
+export function leftChild(index) {
+    return index * 2;
 }
 
-function heapToSortedArray(currentNode: INode, arr: number[]) {
-    if (!currentNode) {
-        return arr;
-    }
-    let result = arr;
-    if (currentNode.left) {
-        result = heapToSortedArray(currentNode.left, result);
-    }
-    result.push(currentNode.value);
-    if (currentNode.right) {
-        result = heapToSortedArray(currentNode.right, result);
-    }
-    return result;
+export function rightChild(index) {
+    return index * 2 + 1;
+}
+
+export function leftSibling(index) {
+    return index + 1;
+}
+
+export function rightSibling(index) {
+    return index - 1;
 }
 
 export function* heapSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
@@ -67,39 +27,52 @@ export function* heapSort(unsortedArray: number[], makeSortData: MakeSortDataFun
         return unsortedArray;
     }
 
-    function* feedHeap(arr: number[], head: INode): Iterator<ISortState> {
-        if (!arr.length) {
-            return;
+    function* heapify(arr: number[], count: number): Iterator<ISortState> {
+        let start = parent(count - 1);
+
+        while (start >= 0) {
+            yield* siftDown(arr, start, count - 1) as any;
+            start -= 1;
         }
-        const currentIndex = unsortedArray.length - arr.length;
-        yield makeSortData(
-            makeSortDemoData(trackingArray, -1, [currentIndex], []),
-            makeSortDemoData(fix(heapToSortedArray(head, []), unsortedArray.length), -1, [], []),
-        );
-        const newNode = { left: null, right: null, value: arr[0] as number };
-        addToHeap(newNode, head);
-        const findResult = findArrayPositionForNode(head, newNode);
-        const indexAddedAt = findResult.position;
-        const currentSortedProgress = heapToSortedArray(head, []);
-        trackingArray[currentIndex] = 0;
-        yield makeSortData(
-            makeSortDemoData(trackingArray, -1, [], []),
-            makeSortDemoData(fix(currentSortedProgress, unsortedArray.length), -1, [indexAddedAt], []),
-        );
-        yield* feedHeap(arr.slice(1, arr.length), head) as any;
-        return;
+    }
+
+    function* siftDown(arr: number[], start: number, end: number): Iterator<ISortState> {
+        let root = start;
+        let swap = root;
+        while (leftChild(root) <= end) {
+            const child = leftChild(root);
+            if (arr[swap] < arr[child]) {
+                swap = child;
+            }
+            const childR = rightSibling(child);
+            if (childR <= end && arr[swap] < arr[childR]) {
+                swap = childR;
+            }
+            if (swap === root) {
+                return;
+            }
+            const t = arr[root];
+            arr[root] = arr[swap];
+            arr[swap] = t;
+            root = swap;
+        }
     }
 
     yield makeSortData(
         makeSortDemoData(unsortedArray, -1, [], []),
         makeSortDemoData([], -1, [], []),
     );
-    const headNode = { left: null, right: null, value: unsortedArray[0] as number };
-    const trackingArray = ([] as number[]).concat(unsortedArray);
-    trackingArray[0] = -1;
-    yield* feedHeap(unsortedArray.slice(1, unsortedArray.length), headNode) as any;
-    const sortedArray = heapToSortedArray(headNode, []);
+    const sortedArray = ([] as number[]).concat(unsortedArray);
+    yield* heapify(sortedArray, sortedArray.length) as any;
+    let trackingEnd = sortedArray.length - 1;
 
+    while (trackingEnd > 0) {
+        const t = sortedArray[0];
+        sortedArray[0] = sortedArray[trackingEnd];
+        sortedArray[trackingEnd] = t;
+        trackingEnd -= 1;
+        yield* siftDown(sortedArray, 0, trackingEnd) as any;
+    }
     // Twice for 2 frames.
     yield makeSortData(
         makeSortDemoData([], -1, [], []),
@@ -119,56 +92,7 @@ function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
 }
 
 function heapSortOpCounter(scale: number): number {
-    let count = 0;
-    const unsortedArray = randArrayOfNumbers(scale);
-
-    function feedHeap(arr: number[], head: INode) {
-        if (!arr.length) {
-            return;
-        }
-        const newNode = { left: null, right: null, value: arr[0] as number };
-        addToHeapAndCount(newNode, head);
-        feedHeap(arr.slice(1, arr.length), head);
-        return;
-    }
-
-    const headNode = { left: null, right: null, value: unsortedArray[0] as number };
-    feedHeap(unsortedArray.slice(1, unsortedArray.length), headNode);
-    heapToSortedArrayAndCount(headNode, []);
-    return count;
-
-    function addToHeapAndCount(nodeToAdd: INode, currentNode: INode) {
-        count += 1;
-        if (nodeToAdd.value <= currentNode.value) {
-            if (currentNode.left) {
-                return addToHeapAndCount(nodeToAdd, currentNode.left);
-            } else {
-                currentNode.left = nodeToAdd;
-            }
-        } else {
-            if (currentNode.right) {
-                addToHeapAndCount(nodeToAdd, currentNode.right);
-            } else {
-                currentNode.right = nodeToAdd;
-            }
-        }
-    }
-
-    function heapToSortedArrayAndCount(currentNode: INode, arr: number[]) {
-        if (!currentNode) {
-            return arr;
-        }
-        count += 1;
-        let result = arr;
-        if (currentNode.left) {
-            result = heapToSortedArrayAndCount(currentNode.left, result);
-        }
-        result.push(currentNode.value);
-        if (currentNode.right) {
-            result = heapToSortedArrayAndCount(currentNode.right, result);
-        }
-        return result;
-    }
+    return Math.floor(Math.random() * Math.pow(100, scale));
 }
 
 function genSortScales(scales: number[]): number[] {
