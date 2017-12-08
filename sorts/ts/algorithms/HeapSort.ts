@@ -58,7 +58,6 @@ export function* heapSort(unsortedArray: number[], makeSortData: MakeSortDataFun
             }
             yield makeSortData(makeSortDemoData(sortedArray, highlight, [root, highlight], [root, child, childR]));
             const prevRoot = root;
-            // const prevSwap = swap;
             const t = arr[root];
             arr[root] = arr[swap];
             arr[swap] = t;
@@ -93,7 +92,52 @@ function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
 }
 
 function heapSortOpCounter(scale: number): number {
-    return Math.floor(Math.random() * Math.pow(100, scale));
+    let iterationCount = 0;
+
+    function heapify(arr: number[], count: number) {
+        let start = parent(count - 1);
+        while (start >= 0) {
+            siftDown(arr, start, count - 1);
+            start -= 1;
+        }
+    }
+
+    function siftDown(arr: number[], start: number, end: number) {
+        let root = start;
+        while (leftChild(root) <= end) {
+            const child = leftChild(root);
+            const childR = rightSibling(child);
+            let swap = root;
+            if (arr[swap] < arr[child]) {
+                swap = child;
+            }
+            if (childR <= end && arr[swap] < arr[childR]) {
+                swap = childR;
+            }
+            if (swap === root) {
+                return;
+            }
+            const t = arr[root];
+            arr[root] = arr[swap];
+            arr[swap] = t;
+            root = swap;
+            iterationCount += 1;
+        }
+    }
+
+    const unsortedArray = randArrayOfNumbers(scale);
+    const sortedArray = ([] as number[]).concat(unsortedArray);
+    heapify(sortedArray, sortedArray.length);
+    let trackingEnd = sortedArray.length - 1;
+
+    while (trackingEnd > 0) {
+        const t = sortedArray[0];
+        sortedArray[0] = sortedArray[trackingEnd];
+        sortedArray[trackingEnd] = t;
+        trackingEnd -= 1;
+        siftDown(sortedArray, 0, trackingEnd);
+    }
+    return iterationCount;
 }
 
 function genSortScales(scales: number[]): number[] {
