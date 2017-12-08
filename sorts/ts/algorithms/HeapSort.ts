@@ -6,11 +6,11 @@ export function parent(index) {
 }
 
 export function leftChild(index) {
-    return index * 2;
+    return index * 2 + 1;
 }
 
 export function rightChild(index) {
-    return index * 2 + 1;
+    return index * 2 + 2;
 }
 
 export function leftSibling(index) {
@@ -22,14 +22,12 @@ export function rightSibling(index) {
 }
 
 export function* heapSort(unsortedArray: number[], makeSortData: MakeSortDataFunc): Iterator<ISortState> {
-
     if (!unsortedArray.length) {
         return unsortedArray;
     }
 
     function* heapify(arr: number[], count: number): Iterator<ISortState> {
         let start = parent(count - 1);
-
         while (start >= 0) {
             yield* siftDown(arr, start, count - 1) as any;
             start -= 1;
@@ -38,30 +36,39 @@ export function* heapSort(unsortedArray: number[], makeSortData: MakeSortDataFun
 
     function* siftDown(arr: number[], start: number, end: number): Iterator<ISortState> {
         let root = start;
-        let swap = root;
         while (leftChild(root) <= end) {
             const child = leftChild(root);
+            const childR = rightSibling(child);
+            let swap = root;
+            let highlight = swap;
+            yield makeSortData(makeSortDemoData(sortedArray, -1, [highlight], [root, child, childR]));
             if (arr[swap] < arr[child]) {
                 swap = child;
+                highlight = swap;
+                yield makeSortData(makeSortDemoData(sortedArray, highlight, [highlight], [root, child, childR]));
             }
-            const childR = rightSibling(child);
             if (childR <= end && arr[swap] < arr[childR]) {
                 swap = childR;
+                highlight = swap;
+                yield makeSortData(makeSortDemoData(sortedArray, highlight, [highlight], [root, child, childR]));
             }
             if (swap === root) {
+                yield makeSortData(makeSortDemoData(sortedArray, -1, [highlight], [root]));
                 return;
             }
+            yield makeSortData(makeSortDemoData(sortedArray, highlight, [root, highlight], [root, child, childR]));
+            const prevRoot = root;
+            // const prevSwap = swap;
             const t = arr[root];
             arr[root] = arr[swap];
             arr[swap] = t;
             root = swap;
+            highlight = root;
+            yield makeSortData(makeSortDemoData(sortedArray, prevRoot, [highlight, prevRoot], [prevRoot, child, childR]));
         }
     }
 
-    yield makeSortData(
-        makeSortDemoData(unsortedArray, -1, [], []),
-        makeSortDemoData([], -1, [], []),
-    );
+    yield makeSortData(makeSortDemoData(unsortedArray, -1, [], []));
     const sortedArray = ([] as number[]).concat(unsortedArray);
     yield* heapify(sortedArray, sortedArray.length) as any;
     let trackingEnd = sortedArray.length - 1;
@@ -74,14 +81,8 @@ export function* heapSort(unsortedArray: number[], makeSortData: MakeSortDataFun
         yield* siftDown(sortedArray, 0, trackingEnd) as any;
     }
     // Twice for 2 frames.
-    yield makeSortData(
-        makeSortDemoData([], -1, [], []),
-        makeSortDemoData(sortedArray, -1, [], []),
-    );
-    yield makeSortData(
-        makeSortDemoData([], -1, [], []),
-        makeSortDemoData(sortedArray, -1, [], []),
-    );
+    yield makeSortData(makeSortDemoData(sortedArray, -1, [], []));
+    yield makeSortData(makeSortDemoData(sortedArray, -1, [], []));
 }
 
 function genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter {
