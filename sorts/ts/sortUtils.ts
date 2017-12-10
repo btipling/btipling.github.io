@@ -1,5 +1,5 @@
 import { times } from 'ramda';
-import { SCALE_1, SCALE_4 } from './components/PerformanceGraph';
+import { SCALE_1, SCALE_4 } from './constants';
 import { ISortDataItem, ISortDemo, ISortState, MakeSortDataFunc } from './typedefs';
 
 export function fix(r: number[], len: number): number[] {

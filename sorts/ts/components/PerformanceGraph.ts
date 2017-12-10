@@ -8,15 +8,11 @@ import { map, max, min, range } from 'ramda';
 import { VNode } from 'snabbdom/vnode';
 import xs, { Stream } from 'xstream';
 import { getSplines } from '../../external/bezier-spline';
+import { SCALE_1, SCALE_2, SCALE_4 } from '../constants';
 import { scaleToN } from '../sortUtils';
 import { IGraphState, ISinks, ISources, Reducer } from '../typedefs';
 
 import '../../sass/performancegraph.sass';
-
-export const SCALE_1 = 1;
-export const SCALE_2 = 2;
-export const SCALE_3 = 3;
-export const SCALE_4 = 4;
 
 export function defaultScale(): { scale: number } {
     return { scale: SCALE_2 };

@@ -12,27 +12,27 @@ const routes: IRoute[] = [
         sort: bubbleSort,
     },
     {
-        name: 'Bubble Sort',
+        name: bubbleSort.name,
         path: '/bubble',
         sort: bubbleSort,
     },
     {
-        name: 'Heap Sort',
+        name: heapSort.name,
         path: '/heap',
         sort: heapSort,
     },
     {
-        name: 'Insertion Sort',
+        name: insertionSort.name,
         path: '/insertion',
         sort: insertionSort,
     },
     {
-        name: 'Merge Sort',
+        name: mergeSort.name,
         path: '/merge',
         sort: mergeSort,
     },
     {
-        name: 'Quick Sort',
+        name: quickSort.name,
         path: '/quick',
         sort: quickSort,
     },

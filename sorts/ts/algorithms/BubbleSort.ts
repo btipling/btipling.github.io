@@ -74,4 +74,5 @@ function genSortScales(scales: number[]): number[] {
 export default {
     genSort,
     genSortScales,
+    name: 'Bubble Sort',
 };

@@ -62,6 +62,7 @@ export interface ISorter {
 }
 
 export interface ISort {
+    name: string;
     genSort(scale: number, makeSortData: MakeSortDataFunc): ISorter;
     genSortScales(scales: number[]): number[];
 }

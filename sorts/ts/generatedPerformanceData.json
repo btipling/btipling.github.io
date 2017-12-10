@@ -1,0 +1,132 @@
+{
+    "Bubble Sort": {
+        "1": {
+            "best": 1,
+            "worst": 44,
+            "average": 22,
+            "medium": 22
+        },
+        "2": {
+            "best": 191,
+            "worst": 580,
+            "average": 386,
+            "medium": 385
+        },
+        "3": {
+            "best": 753,
+            "worst": 1649,
+            "average": 1195,
+            "medium": 1192
+        },
+        "4": {
+            "best": 1607,
+            "worst": 3290,
+            "average": 2450,
+            "medium": 2428
+        }
+    },
+    "Insertion Sort": {
+        "1": {
+            "best": 1,
+            "worst": 44,
+            "average": 22,
+            "medium": 22
+        },
+        "2": {
+            "best": 174,
+            "worst": 591,
+            "average": 386,
+            "medium": 385
+        },
+        "3": {
+            "best": 730,
+            "worst": 1678,
+            "average": 1195,
+            "medium": 1188
+        },
+        "4": {
+            "best": 1626,
+            "worst": 3198,
+            "average": 2450,
+            "medium": 2448
+        }
+    },
+    "Quick Sort": {
+        "1": {
+            "best": 1,
+            "worst": 15,
+            "average": 9,
+            "medium": 9
+        },
+        "2": {
+            "best": 35,
+            "worst": 73,
+            "average": 54,
+            "medium": 54
+        },
+        "3": {
+            "best": 80,
+            "worst": 136,
+            "average": 110,
+            "medium": 110
+        },
+        "4": {
+            "best": 141,
+            "worst": 208,
+            "average": 173,
+            "medium": 173
+        }
+    },
+    "Merge Sort": {
+        "1": {
+            "best": 34,
+            "worst": 34,
+            "average": 34,
+            "medium": 34
+        },
+        "2": {
+            "best": 216,
+            "worst": 216,
+            "average": 216,
+            "medium": 216
+        },
+        "3": {
+            "best": 432,
+            "worst": 432,
+            "average": 432,
+            "medium": 432
+        },
+        "4": {
+            "best": 672,
+            "worst": 672,
+            "average": 672,
+            "medium": 672
+        }
+    },
+    "Heap Sort": {
+        "1": {
+            "best": 12,
+            "worst": 29,
+            "average": 23,
+            "medium": 23
+        },
+        "2": {
+            "best": 149,
+            "worst": 193,
+            "average": 174,
+            "medium": 175
+        },
+        "3": {
+            "best": 326,
+            "worst": 389,
+            "average": 362,
+            "medium": 362
+        },
+        "4": {
+            "best": 530,
+            "worst": 606,
+            "average": 571,
+            "medium": 571
+        }
+    }
+}

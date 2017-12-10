@@ -115,4 +115,5 @@ function genSortScales(scales: number[]): number[] {
 export default {
     genSort,
     genSortScales,
+    name: 'Quick Sort',
 };
