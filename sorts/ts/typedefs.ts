@@ -51,6 +51,7 @@ export interface ISinks {
 export interface IGraphState {
     scale: number;
     numOps?: number[];
+    sortName?: string;
 }
 
 export type Component = (n: ISources) => ISinks;

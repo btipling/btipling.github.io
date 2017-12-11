@@ -12,7 +12,11 @@ import { SCALE_1, SCALE_2, SCALE_4 } from '../constants';
 import { scaleToN } from '../sortUtils';
 import { IGraphState, ISinks, ISources, Reducer } from '../typedefs';
 
+import performanceData from '../generatedPerformanceData';
+
 import '../../sass/performancegraph.sass';
+
+console.log('performanceData', performanceData);
 
 export function defaultScale(): { scale: number } {
     return { scale: SCALE_2 };
@@ -136,6 +140,7 @@ export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream
             return state.numOps !== undefined || width === 0;
         })
         .map(([state, { width, height }, hover]) => {
+            console.log('performanceGraphs', state.sortName);
             const distancePerSize = width / (scaleToN(SCALE_4) + 10);
             const positions = state.numOps ? numOpsNormalized(state.numOps)
                 .map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];

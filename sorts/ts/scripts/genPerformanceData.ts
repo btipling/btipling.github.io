@@ -11,7 +11,7 @@ import { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from '../constants';
 import { scaleToN } from '../sortUtils';
 
 const NUM_ITERATIONS = 1000000;
-const FILE_PATH = '../generatedPerformanceData.json';
+const FILE_PATH = '../generatedPerformanceData.ts';
 
 const algorithms = [
     bubbleSort,
@@ -34,7 +34,10 @@ algorithms.forEach(sort => {
 });
 const resultStr = JSON.stringify(resultData, undefined, '    ');
 console.log(resultStr);
-writeFileSync(FILE_PATH, resultStr);
+writeFileSync(
+    FILE_PATH,
+    `/* tslint:disable */\n// This is a generated file.\nconst performanceData = ${resultStr};\nexport default performanceData;\n`,
+);
 
 function generateAverageScales(suppliedScales: number[], sort, data = {}) {
     const sortName = sort.name;

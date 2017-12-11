@@ -58,7 +58,7 @@ export function sortComponentDemoList(): Component {
     });
 }
 
-export function model(numOps: number[], genSort: (scale: number, makeSortData: MakeSortDataFunc) => ISorter, time$: TimeSource) {
+export function model(sortName: string, numOps: number[], genSort: (scale: number, makeSortData: MakeSortDataFunc) => ISorter, time$: TimeSource) {
     return (state$: Stream<any>): Stream<Reducer> => {
         const mf: MakeSortDataFunc = makeSortData();
         const initialReducer$ = xs.of(() => {
@@ -81,6 +81,7 @@ export function model(numOps: number[], genSort: (scale: number, makeSortData: M
                     value = sorter.sorter.next();
                 }
                 graph.numOps = numOps;
+                graph.sortName = sortName;
                 return Object.assign(value.value, { speedChooser, graph });
             });
         return xs.merge(initialReducer$, addOneReducer$) as any as Stream<Reducer>;
@@ -122,7 +123,7 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
         const List = sortComponentDemoList();
         const listSinks = isolate(List, 'lists')(sources as any);
 
-        const sortReducer$ = model(numOps, genSort, time$)(state$);
+        const sortReducer$ = model(route.name, numOps, genSort, time$)(state$);
         const speedReducer$ = speedSinks.onion as any as Stream<Reducer>;
         const graphReducer$ = graphSinks.onion as any as Stream<Reducer>;
 
