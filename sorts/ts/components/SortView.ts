@@ -6,7 +6,6 @@ import isolate from '@cycle/isolate';
 import { TimeSource } from '@cycle/time';
 import { makeCollection } from 'cycle-onionify';
 import xs, { Stream } from 'xstream';
-import { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from '../constants';
 import { makeSortData, makeSortDemoData } from '../sortUtils';
 import { Component, IRoute, ISinks, ISorter, ISources, IState, MakeSortDataFunc } from '../typedefs';
 import PerformanceGraph from './PerformanceGraph';
@@ -58,7 +57,7 @@ export function sortComponentDemoList(): Component {
     });
 }
 
-export function model(sortName: string, numOps: number[], genSort: (scale: number, makeSortData: MakeSortDataFunc) => ISorter, time$: TimeSource) {
+export function model(sortName: string, genSort: (scale: number, makeSortData: MakeSortDataFunc) => ISorter, time$: TimeSource) {
     return (state$: Stream<any>): Stream<Reducer> => {
         const mf: MakeSortDataFunc = makeSortData();
         const initialReducer$ = xs.of(() => {
@@ -80,7 +79,6 @@ export function model(sortName: string, numOps: number[], genSort: (scale: numbe
                     sorter = genSort(graph.scale, mf);
                     value = sorter.sorter.next();
                 }
-                graph.numOps = numOps;
                 graph.sortName = sortName;
                 return Object.assign(value.value, { speedChooser, graph });
             });
@@ -113,9 +111,7 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
         const state$ = sources.onion.state$;
         const time$ = sources.Time;
 
-        const { genSortScales, genSort } = route.sort;
-        const numOps = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4]);
-        console.log('numOps', numOps);
+        const { genSort } = route.sort;
         const speedSinks = isolate(SpeedChooser, 'speedChooser')(sources as any);
         const graphSinks = isolate(PerformanceGraph, 'graph')(sources as any);
         const sortChooser = SortChooser(route, routes)(sources as any);
@@ -123,7 +119,7 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
         const List = sortComponentDemoList();
         const listSinks = isolate(List, 'lists')(sources as any);
 
-        const sortReducer$ = model(route.name, numOps, genSort, time$)(state$);
+        const sortReducer$ = model(route.name, genSort, time$)(state$);
         const speedReducer$ = speedSinks.onion as any as Stream<Reducer>;
         const graphReducer$ = graphSinks.onion as any as Stream<Reducer>;
 

@@ -17,7 +17,7 @@ export default function SortChooser(route: IRoute, routes: IRoute[]): Component 
             route = routes.find(({ name, sort }) => !!name && route.sort === sort) as IRoute;
         }
         const vdom$ = xs.of(div('.SortChooser', [
-            h2('.SortChooser-current', route.name),
+            h2('.SortChooser-current', `${route.name} ☰`),
             ul('.SortChooser-list',
                 routes
                     .filter(({ name }) => name !== route.name && name.length)

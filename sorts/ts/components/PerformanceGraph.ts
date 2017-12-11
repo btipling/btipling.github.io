@@ -73,17 +73,17 @@ function point(cx: number, cy: number, r: number, active: boolean, highlighted: 
     });
 }
 
-function paths(positions: Array<[number, number]>, width: number): VNode[] {
+function paths(positions: Array<[number, number]>, width: number, active: boolean = true): VNode[] {
     const strokeWidth = min(width / 100, 3);
-    return getSplines(positions).map(d => path(d, strokeWidth));
+    return getSplines(positions).map(d => path(d, strokeWidth, active));
 }
 
-function path(d: string, strokeWidth: number): VNode {
+function path(d: string, strokeWidth: number, active: boolean): VNode {
     return h('path', {
         attrs: {
             d,
             'fill': 'transparent',
-            'stroke': '#83C7DE',
+            'stroke': active ? '#83C7DE' : '#444',
             'stroke-width': strokeWidth,
         },
     });
@@ -98,7 +98,7 @@ function pointInfo(scale: number, numOps?: number[]) {
 
     return [
         div(label('Items:')), div('.PerformanceGraph-infoData', label(`${numSortItems}`)),
-        div(label('Iterations:')), div('.PerformanceGraph-infoData', label(`${numOperations}`)),
+        div(label('Swaps:')), div('.PerformanceGraph-infoData', label(`~${numOperations}`)),
     ];
 }
 
@@ -117,13 +117,34 @@ function numOpsToPos(numOps: number, n: number, distancePerSize: number, width: 
 }
 
 // numOps normalized is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
-function numOpsNormalized(numOps: number[]): number[] {
+function numOpsNormalized(numOps: number[], minN: number = 0, maxN: number = 0): number[] {
     const a = 5;
     const b = 95;
-    const data = numOps.reduce(
-        (acc, n) => ({ max: max(acc.max, n), min: min(acc.min, n) }),
-        { min: Number.POSITIVE_INFINITY, max: 0 });
-    return numOps.map(n => ((b - a) * (n - data.min)) / (data.max - data.min) + a);
+    return numOps.map(n => ((b - a) * (n - minN)) / (maxN - minN) + a);
+}
+
+function getBoundaries(data: any): { maxN: number, minN: number } {
+    let maxN = 0;
+    let minN = Number.POSITIVE_INFINITY;
+    Object.entries(data).forEach(([_, sortData]) => {
+        Object.entries(sortData).forEach(([__, d]) => {
+            if (d.average > maxN) {
+                maxN = d.average;
+            }
+            if (d.average < minN) {
+                minN = d.average;
+            }
+        });
+    });
+    return { maxN, minN };
+}
+
+function getNumOpsPerSort(data: any): { [s: string]: number[]; } {
+    const resultData = {};
+    Object.entries(data).forEach(([sortName, sortData]) => {
+        resultData[sortName] = Object.entries(sortData).map(([_, d]) => d.average);
+    });
+    return resultData;
 }
 
 export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream<IGraphState>, domSource$: DOMSource) {
@@ -135,21 +156,29 @@ export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream
 
     // Combine state and dimensions to create graph.
     const hover$ = action$.map(action => action[1]).startWith({ scale: 0 });
+    const { maxN, minN } = getBoundaries(performanceData);
+    const sortNumOps = getNumOpsPerSort(performanceData);
     return xs.combine(state$, graphDimensions$, hover$)
         .filter(([state, { width }, _]) => {
-            return state.numOps !== undefined || width === 0;
+            return state.sortName !== undefined || width === 0;
         })
         .map(([state, { width, height }, hover]) => {
-            console.log('performanceGraphs', state.sortName);
+            const numOps = sortNumOps[state.sortName as string];
             const distancePerSize = width / (scaleToN(SCALE_4) + 10);
-            const positions = state.numOps ? numOpsNormalized(state.numOps)
-                .map((numOps, n) => numOpsToPos(numOps, n + 1, distancePerSize, width, height)) : [];
+            const positions = state.sortName ? numOpsNormalized(numOps, minN, maxN)
+                .map((normalizedNumOps, n) => numOpsToPos(normalizedNumOps, n + 1, distancePerSize, width, height)) : [];
 
+            const otherSortPaths = Object.entries(sortNumOps)
+                .filter(([iterSortName]) => iterSortName !== state.sortName)
+                .map(([_, iterNumOps]) => numOpsNormalized(iterNumOps, minN, maxN)
+                    .map((normalizedNumOps, n) => numOpsToPos(normalizedNumOps, n + 1, distancePerSize, width, height)))
+                .map(pos => paths(pos, width, false))
+                .reduce((acc, sels) => acc.concat(sels), []);
             const graphPaths = paths(positions, width);
             const graphPoints = points(positions, width, state.scale, hover.scale);
-            const graphPointInfo = pointInfo(hover.scale, state.numOps);
+            const graphPointInfo = pointInfo(hover.scale, numOps);
 
-            const graphContent = graphPaths.concat(graphPoints);
+            const graphContent = otherSortPaths.concat(graphPaths.concat(graphPoints));
             const segments = map(segment(), range(SCALE_1, SCALE_4 + 1));
 
             return div('.PerformanceGraph', [

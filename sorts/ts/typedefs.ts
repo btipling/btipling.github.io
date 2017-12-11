@@ -50,7 +50,6 @@ export interface ISinks {
 
 export interface IGraphState {
     scale: number;
-    numOps?: number[];
     sortName?: string;
 }
 
