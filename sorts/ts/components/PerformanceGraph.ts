@@ -83,7 +83,7 @@ function path(d: string, strokeWidth: number, active: boolean): VNode {
         attrs: {
             d,
             'fill': 'transparent',
-            'stroke': active ? '#83C7DE' : '#444',
+            'stroke': active ? '#83C7DE' : '#333',
             'stroke-width': strokeWidth,
         },
     });
