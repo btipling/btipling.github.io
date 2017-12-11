@@ -31,7 +31,6 @@ export interface ISortDemo {
 
 export interface ISortState {
     lists: ISortDemo[];
-    numOps: number[];
 }
 
 export interface ISources {

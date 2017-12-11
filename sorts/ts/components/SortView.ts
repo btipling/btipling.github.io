@@ -60,7 +60,7 @@ export function sortComponentDemoList(): Component {
 
 export function model(numOps: number[], genSort: (scale: number, makeSortData: MakeSortDataFunc) => ISorter, time$: TimeSource) {
     return (state$: Stream<any>): Stream<Reducer> => {
-        const mf: MakeSortDataFunc = makeSortData(numOps);
+        const mf: MakeSortDataFunc = makeSortData();
         const initialReducer$ = xs.of(() => {
             return mf(makeSortDemoData([], 0, [], []));
         });
@@ -114,6 +114,7 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
 
         const { genSortScales, genSort } = route.sort;
         const numOps = genSortScales([SCALE_1, SCALE_2, SCALE_3, SCALE_4]);
+        console.log('numOps', numOps);
         const speedSinks = isolate(SpeedChooser, 'speedChooser')(sources as any);
         const graphSinks = isolate(PerformanceGraph, 'graph')(sources as any);
         const sortChooser = SortChooser(route, routes)(sources as any);

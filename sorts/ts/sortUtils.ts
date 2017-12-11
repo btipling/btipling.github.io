@@ -33,11 +33,12 @@ export function makeSortDemoData(arrayData: number[], compare: number, highlight
     };
 }
 
-export function makeSortData(numOps: number[]): MakeSortDataFunc {
+export function makeSortData(): MakeSortDataFunc {
+    // This was a closure because it used to have additional data, but not anymore.
+    // It is still a closure because it might be useful, so leaving it.
     return (...sortDemoData: ISortDemo[]): ISortState => {
         return {
             lists: sortDemoData,
-            numOps,
         };
     };
 }

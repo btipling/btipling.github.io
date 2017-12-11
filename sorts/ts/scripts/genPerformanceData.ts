@@ -8,6 +8,7 @@ import insertionSort from '../algorithms/InsertionSort';
 import mergeSort from '../algorithms/MergeSort';
 import quickSort from '../algorithms/QuickSort';
 import { SCALE_1, SCALE_2, SCALE_3, SCALE_4 } from '../constants';
+import { scaleToN } from '../sortUtils';
 
 const NUM_ITERATIONS = 1000000;
 const FILE_PATH = '../generatedPerformanceData.json';
@@ -65,15 +66,16 @@ function generateAverageScales(suppliedScales: number[], sort, data = {}) {
 
         let medium = -1;
         let biggestCount = -1;
-        Object.entries(results[scale]).forEach(([key, value]) => {
+        Object.entries(scale).forEach(([key, value]) => {
             if (value > biggestCount) {
                 medium = parseInt(key, 10);
                 biggestCount = value;
             }
         });
+        const count = scaleToN(scale);
 
-        const scaleResult = { best, worst, average, medium };
-        data[sortName][scale] = scaleResult;
+        const scaleResult = { average, best, count, medium, worst };
+        data[sortName][scaleToN(scale)] = scaleResult;
     });
     return data;
 }
