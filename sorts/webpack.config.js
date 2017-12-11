@@ -3,7 +3,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanupPlugin = require('webpack-cleanup-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const NODE_ENV = process.env.NODE_ENV;
 const isProd = NODE_ENV === 'production';
@@ -11,7 +12,7 @@ const root = path.resolve(__dirname);
 const tsSrc = path.join(root, 'ts');
 const dist = path.join(root, 'build');
 const app = path.join(tsSrc, 'main.ts');
-const publicPath = '/';
+const publicPath = '/sorts/';
 
 const extractSass = new ExtractTextPlugin({
     filename: "[name].[contenthash].css",
@@ -24,13 +25,13 @@ const webpackConfig = {
     },
     output: {
         filename: `[name].[hash].js`,
-        chunkFilename: '[name].[chunkhash].js',
+        // chunkFilename: '[name].[chunkhash].js',
         path: dist,
         publicPath: publicPath,
     },
     name: 'client',
     target: 'web',
-    devtool: 'source-map',
+    devtool: 'inline-source-map',
     resolve: {
         modules: [tsSrc, 'node_modules'],
         extensions: ['.ts', '.js', '.json'],
@@ -52,6 +53,9 @@ const webpackConfig = {
 };
 
 webpackConfig.plugins = [
+    new TsconfigPathsPlugin({
+        configFile: "./tsconfig.json",
+    }),
     new webpack.DefinePlugin({
         NODE_ENV,
     }),
@@ -66,17 +70,18 @@ webpackConfig.plugins = [
 
 if (isProd) {
     webpackConfig.plugins.push(
-        new webpack.optimize.OccurrenceOrderPlugin(),
-        new UglifyJSPlugin({
-            uglifyOptions: {
-                compress: {
-                    unused: true,
-                    dead_code: true,
-                    warnings: false
-                }
-            }
-        }),
-        new webpack.optimize.AggressiveMergingPlugin()
+        // new webpack.optimize.OccurrenceOrderPlugin(),
+        // new UglifyJSPlugin({
+        //     uglifyOptions: {
+        //         ascii_only: true,
+        //         compress: {
+        //             unused: true,
+        //             dead_code: true,
+        //             warnings: false,
+        //         }
+        //     }
+        // }),
+        // new webpack.optimize.AggressiveMergingPlugin()
     )
 } else {
     webpackConfig.plugins.push(
@@ -95,7 +100,7 @@ addRules([{
         loader: 'ts-loader'
     },
     {
-        test: /\.js$/,
+        test: /\.ts$/,
         loader: 'source-map-loader',
         enforce: 'pre',
         exclude: [path.join(root, 'node_modules')]

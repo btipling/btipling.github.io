@@ -8,32 +8,32 @@ import { IRoute } from './typedefs';
 const routes: IRoute[] = [
     {
         name: '',
-        path: '/',
+        path: '/sorts/',
         sort: bubbleSort,
     },
     {
         name: bubbleSort.name,
-        path: '/bubble',
+        path: '/sorts/bubble',
         sort: bubbleSort,
     },
     {
         name: heapSort.name,
-        path: '/heap',
+        path: '/sorts/heap',
         sort: heapSort,
     },
     {
         name: insertionSort.name,
-        path: '/insertion',
+        path: '/sorts/insertion',
         sort: insertionSort,
     },
     {
         name: mergeSort.name,
-        path: '/merge',
+        path: '/sorts/merge',
         sort: mergeSort,
     },
     {
         name: quickSort.name,
-        path: '/quick',
+        path: '/sorts/quick',
         sort: quickSort,
     },
 ];
