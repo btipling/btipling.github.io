@@ -116,7 +116,7 @@ function numOpsToPos(numOps: number, n: number, distancePerSize: number, width: 
     return [x, y];
 }
 
-// numOps normalized is a scale of range from 0 to 100, not the actual number of operations for the scale of that sort.
+// numOps normalized is a scale of range from 0 to 100, not the actual number of swaps for the scale of that sort.
 function numOpsNormalized(numOps: number[], minN: number = 0, maxN: number = 0): number[] {
     const a = 5;
     const b = 95;
@@ -182,7 +182,7 @@ export function view(action$: Stream<[IGraphState, IGraphState]>, state$: Stream
             const segments = map(segment(), range(SCALE_1, SCALE_4 + 1));
 
             return div('.PerformanceGraph', [
-                div('.PerformanceGraph-label', label('Number of Operations')),
+                div('.PerformanceGraph-label', label('Number of Swaps')),
                 div('.PerformanceGraph-sections', [
                     div('.PerformanceGraph-graphBG', [
                         h('svg', { attrs: { height, width } }, graphContent),

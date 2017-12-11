@@ -6,6 +6,7 @@ import isolate from '@cycle/isolate';
 import { TimeSource } from '@cycle/time';
 import { makeCollection } from 'cycle-onionify';
 import xs, { Stream } from 'xstream';
+import BubbleSort from '../algorithms/BubbleSort';
 import { makeSortData, makeSortDemoData } from '../sortUtils';
 import { Component, IRoute, ISinks, ISorter, ISources, IState, MakeSortDataFunc } from '../typedefs';
 import PerformanceGraph from './PerformanceGraph';
@@ -119,7 +120,7 @@ export default function SortView(route: IRoute, routes: IRoute[]): Component {
         const List = sortComponentDemoList();
         const listSinks = isolate(List, 'lists')(sources as any);
 
-        const sortReducer$ = model(route.name, genSort, time$)(state$);
+        const sortReducer$ = model(route.name || BubbleSort.name, genSort, time$)(state$);
         const speedReducer$ = speedSinks.onion as any as Stream<Reducer>;
         const graphReducer$ = graphSinks.onion as any as Stream<Reducer>;
 
